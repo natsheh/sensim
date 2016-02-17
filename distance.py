@@ -18,8 +18,8 @@ def load_data(dataset, verbose=0):
 		elif verbose == 1:
 			print data.shape
 		X = data.as_matrix(columns=["Sent1", "Sent2"])
-    	y = data.as_matrix(columns=["Score"])
-    	return X, y
+		y = data.as_matrix(columns=["Score"])
+		return X, y
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
