@@ -11,25 +11,6 @@
 from polyglot.text import Text
 import numpy as np
 
-
-def word2glove(dframe, word):
-    """Get the GloVe vector representation of the word.
-
-    Parameters
-    ----------
-    :param dframe: Pandas DataFrame
-        Pre-trained GloVe loaded dataframe
-    
-    :param word: string
-        word
-
-    Returns
-    -------
-    :returns: Vecotr
-        Glove vector of the word
-    """
-    return np.array(dframe.loc[word]).reshape(1, -1)
-
 def get_pos(s):
     """Get dictionary of list POS_tags words from the sentence.
 
