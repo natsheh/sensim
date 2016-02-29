@@ -18,13 +18,15 @@ def load_dataset(dataset, verbose=0):
 		elif verbose == 1:
 			print data.shape
 		X = data.as_matrix(columns=["Sent1", "Sent2"])
-		y = data.as_matrix(columns=["Score"])
+		y = data['Score'].values
 		return X, y
 
 def load_glove(filepath, verbose=0):
-	data = pd.read_csv(filepath, sep=' ', compression='gzip', skiprows=9, index_col=0, header=None, encoding='utf-8')
+	global glove6b300d
+	glove6b300d = pd.read_csv(filepath, sep=' ', compression='gzip', skiprows=9, index_col=0, header=None, encoding='utf-8')
 	if verbose == 2:
-		print data.shape
-		print data.head(n=10)
+		print glove6b300d.shape
+		print glove6b300d.head(n=10)
 	elif verbose == 1:
-		print data.shape
+		print glove6b300d.shape
+	return glove6b300d

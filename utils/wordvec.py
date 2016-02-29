@@ -11,7 +11,7 @@
 import numpy as np
 
 
-def word2glove(dframe, word):
+def word2glove(word):
     """Get the GloVe vector representation of the word.
 
     Parameters
@@ -27,4 +27,10 @@ def word2glove(dframe, word):
     :returns: Vecotr
         Glove vector of the word
     """
-    return np.array(dframe.loc[word]).reshape(1, -1)
+    global glove6b300d
+    
+    word = word.lower()
+    if word not in glove6b300d.index:
+        return np.zeros(300, dtype=float, order='C').reshape(1, -1)
+    else:
+        return np.array(glove6b300d.loc[word]).reshape(1, -1)
