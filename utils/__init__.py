@@ -38,6 +38,7 @@ from .transformers import FuncTransformer
 from .transformers import Shaper
 from .load_data import load_dataset
 from .load_data import load_glove
+from .combiners import PairCosine
 
 __all__ = ("get_1st_noun",
            "get_2nd_noun",
@@ -66,4 +67,5 @@ __all__ = ("get_1st_noun",
            "FuncTransformer",
            "Shaper",
            "load_dataset",
-           "load_glove")
+           "load_glove",
+           "PairCosine")
