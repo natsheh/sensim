@@ -32,11 +32,11 @@ from utils import get_interjection
 from utils import get_coordinating_conjunction
 from utils import get_symbol
 from utils import group_by_sentence
-#from utils import word2glove
 from utils import FuncTransformer
 from utils import Shaper
 from utils import load_dataset
 from utils import load_glove
+from utils import PairCosine
 
 from sklearn.pipeline import FeatureUnion
 from sklearn.pipeline import Pipeline
@@ -48,50 +48,6 @@ from beard.similarity import CosineSimilarity
 from beard.similarity import PairTransformer
 from beard.similarity import StringDistance
 from beard.similarity import EstimatorTransformer
-
-from sklearn.base import BaseEstimator
-from sklearn.base import TransformerMixin
-from sklearn.metrics.pairwise import cosine_similarity
-class PairCosine(BaseEstimator, TransformerMixin):
-    """Cosine similarity on paired data."""
-
-    def fit(self, X, y=None):
-        """(Do nothing).
-
-        Parameters
-        ----------
-        :param X: array-like, shape (n_pair, 2)
-            Input data.
-
-        Returns
-        -------
-        :returns: self
-        """
-        return self
-
-    def transform(self, X):
-        """Compute the cosine similarity of all pairs in ``X``.
-
-        To be added.
-
-        Parameters
-        ----------
-        :param X: array-like, shape (n_pair, 2)
-            Input paired data.
-
-        Returns
-        -------
-        :returns Xt: array-like, shape (n_pair, 1)
-            The transformed data.
-        """
-        n_pairs, two = X.shape
-        Xt = np.zeros(n_pairs, dtype=float)
-        i=0
-        for x1, x2 in X:
-            Xt[i] = cosine_similarity(x1, x2)
-            i+=1
-
-        return Xt.reshape(n_pairs, 1)
 
 def _define_global():
     global glove6b300d
@@ -122,101 +78,6 @@ def _word2glove(word):
     else:
         return np.array(glove6b300d.loc[word])
 
-def get_pos(s):
-    """Get dictionary of list POS_tags words from the sentence.
-
-    Parameters
-    ----------
-    :param s: string
-        Sentence
-
-    Returns
-    -------
-    :returns: Dictionay
-        Dictionary of list POS_tags words
-    """
-    def get_pos(pos, pos_codes):
-        for w in text.words:
-            if w.pos_tag == pos_code:
-                pos.append(w)
-        if len(pos) > 0:
-            return pos
-        else:
-            return [' ']
-    text = Text(s)
-    text.language = 'en'
-    text.pos_tags
-    POS = {}
-    pos_lst = []
-    adjectives = []
-    pos_lst.append((adjectives, 'ADJ'))
-    adpositions = []
-    pos_lst.append((adpositions, 'ADP'))
-    adverbs = []
-    pos_lst.append((adverbs, 'ADV'))
-    auxiliary_verbs = []
-    pos_lst.append((auxiliary_verbs, 'AUX'))
-    coordinating_conjunctions = []
-    pos_lst.append((coordinating_conjunctions, 'CONJ'))
-    determiners = []
-    pos_lst.append((determiners, 'DET'))
-    interjections = []
-    pos_lst.append((interjections, 'INTJ'))
-    nouns = []
-    pos_lst.append((nouns, 'NOUN'))
-    numerals = []
-    pos_lst.append((numerals, 'NUM'))
-    particles = []
-    pos_lst.append((particles, 'PART'))
-    pronouns = []
-    pos_lst.append((pronouns, 'PRON'))
-    proper_nouns = []
-    pos_lst.append((proper_nouns, 'PROPN'))
-    punctuations = []
-    pos_lst.append((punctuations, 'PUNCT'))
-    subordinating_conjunctions = []
-    pos_lst.append((subordinating_conjunctions, 'SCONJ'))
-    symbols = []
-    pos_lst.append((symbols, 'SYM'))
-    verbs = []
-    pos_lst.append((verbs, 'VERB'))
-    others = []
-    pos_lst.append((others, 'X'))
-    for pos, pos_code in pos_lst:
-        POS[pos_code] = get_pos(pos, pos_code)
-    return POS
-
-def get_verbs(s):
-    """Get list of verbs from the sentence.
-
-    Parameters
-    ----------
-    :param s: string
-        Sentence
-
-    Returns
-    -------
-    :returns: list of strings
-        list of verbs
-    """
-    return (get_pos(s)['VERB'])
-
-def _get_1st_verb(s):
-    """Get first verb from the sentence.
-
-    Parameters
-    ----------
-    :param s: string
-        Sentence
-
-    Returns
-    -------
-    :returns: string
-        first verb
-    """
-    verbs = get_verbs(s)
-    word = verbs[0]
-    return _word2glove(word)
 
 def _build_distance_estimator(X, y, verbose=1):
 
@@ -228,6 +89,133 @@ def _build_distance_estimator(X, y, verbose=1):
         		('functransformer-2', FuncTransformer(dtype=None, func=_word2glove))]),
         groupby=None)), 
         	('paircosine', PairCosine())])),
+        
+        ("1st_verb_glove", Pipeline(steps=[
+        	('pairtransformer', PairTransformer(element_transformer=Pipeline(steps=[
+        		('functransformer-1', FuncTransformer(dtype=None, func=get_2nd_verb)),
+        		('functransformer-2', FuncTransformer(dtype=None, func=_word2glove))]),
+        groupby=None)), 
+        	('paircosine', PairCosine())])),
+        
+        ("1st_verb_glove", Pipeline(steps=[
+        	('pairtransformer', PairTransformer(element_transformer=Pipeline(steps=[
+        		('functransformer-1', FuncTransformer(dtype=None, func=get_1st_noun)),
+        		('functransformer-2', FuncTransformer(dtype=None, func=_word2glove))]),
+        groupby=None)), 
+        	('paircosine', PairCosine())])),
+        
+        ("1st_verb_glove", Pipeline(steps=[
+        	('pairtransformer', PairTransformer(element_transformer=Pipeline(steps=[
+        		('functransformer-1', FuncTransformer(dtype=None, func=get_2nd_noun)),
+        		('functransformer-2', FuncTransformer(dtype=None, func=_word2glove))]),
+        groupby=None)), 
+        	('paircosine', PairCosine())])),
+        
+        ("1st_verb_glove", Pipeline(steps=[
+        	('pairtransformer', PairTransformer(element_transformer=Pipeline(steps=[
+        		('functransformer-1', FuncTransformer(dtype=None, func=get_1st_pronoun)),
+        		('functransformer-2', FuncTransformer(dtype=None, func=_word2glove))]),
+        groupby=None)), 
+        	('paircosine', PairCosine())])),
+        
+        ("1st_verb_glove", Pipeline(steps=[
+        	('pairtransformer', PairTransformer(element_transformer=Pipeline(steps=[
+        		('functransformer-1', FuncTransformer(dtype=None, func=get_2nd_pronoun)),
+        		('functransformer-2', FuncTransformer(dtype=None, func=_word2glove))]),
+        groupby=None)), 
+        	('paircosine', PairCosine())])),
+        
+        ("1st_verb_glove", Pipeline(steps=[
+        	('pairtransformer', PairTransformer(element_transformer=Pipeline(steps=[
+        		('functransformer-1', FuncTransformer(dtype=None, func=get_1st_proper_noun)),
+        		('functransformer-2', FuncTransformer(dtype=None, func=_word2glove))]),
+        groupby=None)), 
+        	('paircosine', PairCosine())])),
+        
+        ("1st_verb_glove", Pipeline(steps=[
+        	('pairtransformer', PairTransformer(element_transformer=Pipeline(steps=[
+        		('functransformer-1', FuncTransformer(dtype=None, func=get_2nd_proper_noun)),
+        		('functransformer-2', FuncTransformer(dtype=None, func=_word2glove))]),
+        groupby=None)), 
+        	('paircosine', PairCosine())])),
+        
+        ("1st_verb_glove", Pipeline(steps=[
+        	('pairtransformer', PairTransformer(element_transformer=Pipeline(steps=[
+        		('functransformer-1', FuncTransformer(dtype=None, func=get_1st_auxiliary_verb)),
+        		('functransformer-2', FuncTransformer(dtype=None, func=_word2glove))]),
+        groupby=None)), 
+        	('paircosine', PairCosine())])),
+        
+        ("1st_verb_glove", Pipeline(steps=[
+        	('pairtransformer', PairTransformer(element_transformer=Pipeline(steps=[
+        		('functransformer-1', FuncTransformer(dtype=None, func=get_2nd_auxiliary_verb)),
+        		('functransformer-2', FuncTransformer(dtype=None, func=_word2glove))]),
+        groupby=None)), 
+        	('paircosine', PairCosine())])),
+        
+        ("1st_verb_glove", Pipeline(steps=[
+        	('pairtransformer', PairTransformer(element_transformer=Pipeline(steps=[
+        		('functransformer-1', FuncTransformer(dtype=None, func=get_1st_adjective)),
+        		('functransformer-2', FuncTransformer(dtype=None, func=_word2glove))]),
+        groupby=None)), 
+        	('paircosine', PairCosine())])),
+        
+        ("1st_verb_glove", Pipeline(steps=[
+        	('pairtransformer', PairTransformer(element_transformer=Pipeline(steps=[
+        		('functransformer-1', FuncTransformer(dtype=None, func=get_2nd_adjective)),
+        		('functransformer-2', FuncTransformer(dtype=None, func=_word2glove))]),
+        groupby=None)), 
+        	('paircosine', PairCosine())])),
+        
+        ("1st_verb_glove", Pipeline(steps=[
+        	('pairtransformer', PairTransformer(element_transformer=Pipeline(steps=[
+        		('functransformer-1', FuncTransformer(dtype=None, func=get_1st_adverb)),
+        		('functransformer-2', FuncTransformer(dtype=None, func=_word2glove))]),
+        groupby=None)), 
+        	('paircosine', PairCosine())])),
+        
+        ("1st_verb_glove", Pipeline(steps=[
+        	('pairtransformer', PairTransformer(element_transformer=Pipeline(steps=[
+        		('functransformer-1', FuncTransformer(dtype=None, func=get_2nd_adverb)),
+        		('functransformer-2', FuncTransformer(dtype=None, func=_word2glove))]),
+        groupby=None)), 
+        	('paircosine', PairCosine())])),
+        
+        ("1st_verb_glove", Pipeline(steps=[
+        	('pairtransformer', PairTransformer(element_transformer=Pipeline(steps=[
+        		('functransformer-1', FuncTransformer(dtype=None, func=get_symbol)),
+        		('functransformer-2', FuncTransformer(dtype=None, func=_word2glove))]),
+        groupby=None)), 
+        	('paircosine', PairCosine())])),
+        
+        ("1st_verb_glove", Pipeline(steps=[
+        	('pairtransformer', PairTransformer(element_transformer=Pipeline(steps=[
+        		('functransformer-1', FuncTransformer(dtype=None, func=get_interjection)),
+        		('functransformer-2', FuncTransformer(dtype=None, func=_word2glove))]),
+        groupby=None)), 
+        	('paircosine', PairCosine())])),
+        
+        ("1st_verb_glove", Pipeline(steps=[
+        	('pairtransformer', PairTransformer(element_transformer=Pipeline(steps=[
+        		('functransformer-1', FuncTransformer(dtype=None, func=get_determiner)),
+        		('functransformer-2', FuncTransformer(dtype=None, func=_word2glove))]),
+        groupby=None)), 
+        	('paircosine', PairCosine())])),
+        
+        ("1st_verb_glove", Pipeline(steps=[
+        	('pairtransformer', PairTransformer(element_transformer=Pipeline(steps=[
+        		('functransformer-1', FuncTransformer(dtype=None, func=get_particle)),
+        		('functransformer-2', FuncTransformer(dtype=None, func=_word2glove))]),
+        groupby=None)), 
+        	('paircosine', PairCosine())])),
+        
+        ("1st_verb_glove", Pipeline(steps=[
+        	('pairtransformer', PairTransformer(element_transformer=Pipeline(steps=[
+        		('functransformer-1', FuncTransformer(dtype=None, func=get_punctuation)),
+        		('functransformer-2', FuncTransformer(dtype=None, func=_word2glove))]),
+        groupby=None)), 
+        	('paircosine', PairCosine())])),
+        
         ("1st_noun_glove", Pipeline([
             ("pairs", PairTransformer(element_transformer=Pipeline([
                 ("1st_verb", FuncTransformer(func=get_1st_noun)),
@@ -243,7 +231,7 @@ def _build_distance_estimator(X, y, verbose=1):
 
     # Train a classifier on these vectors
 
-    classifier = RandomForestRegressor(n_estimators=100,
+    classifier = RandomForestRegressor(n_estimators=200,
                                         verbose=verbose,
                                         n_jobs=8)
 

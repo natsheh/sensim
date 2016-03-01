@@ -31,8 +31,9 @@ def get_pos(s):
         if len(pos) > 0:
             return pos
         else:
-            return [' ']
+            return ([' '])
     text = Text(s)
+    text.language = 'en'
     text.pos_tags
     POS = {}
     pos_lst = []
@@ -218,7 +219,7 @@ def get_2nd_noun(s):
     if len(nouns) > 1:
         return nouns[1]
     else:
-        return ([' '])
+        return (' ')
 
 def get_proper_nouns(s):
     """Get list of proper_nouns from the sentence.
@@ -268,7 +269,7 @@ def get_2nd_proper_noun(s):
     if len(proper_nouns) > 1:
         return proper_nouns[1]
     else:
-        return ([' '])
+        return (' ')
 
 def get_pronouns(s):
     """Get list of pronouns from the sentence.
@@ -318,7 +319,7 @@ def get_2nd_pronoun(s):
     if len(pronouns) > 1:
         return pronouns[1]
     else:
-        return ([' '])
+        return (' ')
 
 def get_verbs(s):
     """Get list of verbs from the sentence.
@@ -368,7 +369,7 @@ def get_2nd_verb(s):
     if len(verbs) > 1:
         return verbs[1]
     else:
-        return ([' '])
+        return (' ')
 
 def get_auxiliary_verbs(s):
     """Get list of auxiliary_verbs from the sentence.
@@ -418,7 +419,7 @@ def get_2nd_auxiliary_verb(s):
     if len(auxiliary_verbs) > 1:
         return auxiliary_verbs[1]
     else:
-        return ([' '])
+        return (' ')
 
 def get_adjectives(s):
     """Get list of adjectives from the sentence.
@@ -468,7 +469,7 @@ def get_2nd_adjective(s):
     if len(adjectives) > 1:
         return adjectives[1]
     else:
-        return ([' '])
+        return (' ')
 
 def get_adverbs(s):
     """Get list of adverbs from the sentence.
@@ -518,7 +519,7 @@ def get_2nd_adverb(s):
     if len(adverbs) > 1:
         return adverbs[1]
     else:
-        return ([' '])
+        return (' ')
 
 
 def get_numbers(s):
@@ -569,7 +570,7 @@ def get_2nd_number(s):
     if len(numbers) > 1:
         return numbers[1]
     else:
-        return ([' '])
+        return (' ')
 
 def group_by_sentence(r):
     """Grouping function for ``PairTransformer``.
