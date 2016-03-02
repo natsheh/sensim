@@ -13,9 +13,9 @@ from polyglot.text import Text
 
 from utils import load_glove
 
-def _define_global():
+def _define_global(glove_file):
     global glove6b300d
-    glove6b300d = load_glove('data/glove.6B.300d.tar.gz', verbose=0)
+    glove6b300d = load_glove(glove_file, verbose=0)
 
 def _word2glove(word):
     """Get the GloVe vector representation of the word.
@@ -68,6 +68,7 @@ if __name__ == "__main__":
     parser.add_argument("--doc1", default='data/docs/Retrograde.txt', type=str)
     parser.add_argument("--doc2", default='data/docs/Dream.txt', type=str)
     parser.add_argument("--threshold", default=2.5, type=float)
+    parser.add_argument("--glovefile", default='data/glove.6B.300d.txt', type=str)
     args = parser.parse_args()
 
     doc1 = TextFile(args.doc1).read()
@@ -118,7 +119,7 @@ if __name__ == "__main__":
             X[i] = [s1.string, s2.string]
             i += 1
 
-    _define_global()
+    _define_global(args.glovefile)
     
     estimator = pickle.load(open(args.estimator,"r"))
     y = estimator.predict(X)
