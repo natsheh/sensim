@@ -22,8 +22,7 @@ def load_dataset(dataset, verbose=0):
 		return X, y
 
 def load_glove(filepath, verbose=0):
-	global glove6b300d
-	glove6b300d = pd.read_csv(filepath, sep=' ', compression='gzip', skiprows=9, index_col=0, header=None, encoding='utf-8')
+	glove6b300d = pd.read_csv(filepath, sep=' ', skiprows=[8], index_col=0, header=None, encoding='utf-8')
 	if verbose == 2:
 		print glove6b300d.shape
 		print glove6b300d.head(n=10)

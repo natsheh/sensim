@@ -10,9 +10,9 @@ import pickle
 
 from utils import load_glove
 
-def _define_global():
+def _define_global(glove_file):
     global glove6b300d
-    glove6b300d = load_glove('data/glove.6B.300d.tar.gz', verbose=1)
+    glove6b300d = load_glove(glove_file, verbose=0)
 
 def _word2glove(word):
     """Get the GloVe vector representation of the word.
@@ -41,13 +41,14 @@ if __name__ == "__main__":
     parser.add_argument("--estimator", default='distance_model.pickle', type=str)
     parser.add_argument("--sent1", default='There was a rather ridiculous young man on it— indigo neck, cord round his hat', type=str)
     parser.add_argument("--sent2", default='There was a young man on this bus who was rather ridiculous, not because he wasn’t carrying a bayonet, but because he looked as if he was carrying one when all the time he wasn’t carrying one.', type=str)
+    parser.add_argument("--glovefile", default='data/glove.6B.300d.txt', type=str)
     args = parser.parse_args()
 
     X = np.zeros(shape=(1,2), dtype=object)
     X[0][0] = args.sent1
     X[0][1] = args.sent2
 
-    _define_global()
+    _define_global(args.glovefile)
     
     estimator = pickle.load(open(args.estimator,"r"))
     sensim = estimator.predict(X)

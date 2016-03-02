@@ -49,9 +49,9 @@ from beard.similarity import PairTransformer
 from beard.similarity import StringDistance
 from beard.similarity import EstimatorTransformer
 
-def _define_global():
+def _define_global(glove_file):
     global glove6b300d
-    glove6b300d = load_glove('data/glove.6B.300d.tar.gz', verbose=1)
+    glove6b300d = load_glove(glove_file, verbose=1)
 
 from polyglot.text import Text
 import numpy as np
@@ -246,12 +246,12 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", default='sts', type=str)
     parser.add_argument("--verbose", default=1, type=int)
-    parser.add_argument("--glovefile", default='data/glove.6B.300d.tar.gz', type=str)
+    parser.add_argument("--glovefile", default='data/glove.6B.300d.txt', type=str)
     args = parser.parse_args()
 
     X, y = load_dataset (args.dataset, args.verbose)
 
-    _define_global()
+    _define_global(args.glovefile)
     
     distance_estimator = _build_distance_estimator(
         X, y, verbose=1)
