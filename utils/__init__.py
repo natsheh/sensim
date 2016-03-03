@@ -10,6 +10,14 @@
 
 """Helper functions."""
 
+from .pos import get_text
+from .pos import get_nouns
+from .pos import get_proper_nouns
+from .pos import get_pronouns
+from .pos import get_verbs
+from .pos import get_auxiliary_verbs
+from .pos import get_adjectives
+from .pos import get_adverbs
 from .pos import get_1st_noun
 from .pos import get_2nd_noun
 from .pos import get_1st_proper_noun
@@ -39,8 +47,22 @@ from .transformers import Shaper
 from .load_data import load_dataset
 from .load_data import load_glove
 from .combiners import PairCosine
+from .combiners import SmallerOtherParing
+from .combiners import RefGroupPairCosine
+from .combiners import GetMatches
+from .combiners import SolveDuplicate
+from .combiners import AvgPOSCombiner
 
-__all__ = ("get_1st_noun",
+
+__all__ = ("get_text",
+           "get_nouns",
+           "get_proper_nouns",
+           "get_pronouns",
+           "get_verbs",
+           "get_auxiliary_verbs",
+           "get_adjectives",
+           "get_adverbs",
+           "get_1st_noun",
            "get_2nd_noun",
            "get_1st_proper_noun",
            "get_2nd_proper_noun",
@@ -68,4 +90,9 @@ __all__ = ("get_1st_noun",
            "Shaper",
            "load_dataset",
            "load_glove",
-           "PairCosine")
+           "PairCosine",
+           "SmallerOtherParing",
+           "RefGroupPairCosine",
+           "GetMatches",
+           "SolveDuplicate",
+           "AvgPOSCombiner")
