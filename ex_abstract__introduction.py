@@ -90,10 +90,10 @@ class PairGloveTransformer(BaseEstimator, TransformerMixin):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--estimator", default='distance_model.pickle', type=str)
-    parser.add_argument("--doc1", default='data/docs/Retrograde.txt', type=str)
-    parser.add_argument("--doc2", default='data/docs/Double_Entry.txt', type=str)
+    parser.add_argument("--doc1", default='data/docs/abstract.txt', type=str)
+    parser.add_argument("--doc2", default='data/docs/introduction.txt', type=str)
     parser.add_argument("--threshold", default=2, type=float)
-    parser.add_argument("--solve_dup", default=1, type=int)
+    parser.add_argument("--solve_dup", default=0, type=int)
     parser.add_argument("--glovefile", default='data/glove.6B.300d.txt', type=str)
     args = parser.parse_args()
 
