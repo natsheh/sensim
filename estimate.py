@@ -36,6 +36,30 @@ def _word2glove(word):
     else:
         return np.array(glove6b300d.loc[word])
 
+from sklearn.base import BaseEstimator
+from sklearn.base import TransformerMixin
+
+class PairGloveTransformer(BaseEstimator, TransformerMixin):
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        n_samples = len(X)
+        Xt = np.zeros(n_samples, dtype=object)
+        s_id = 0
+        for sample in X:
+            lst = []
+            for tup in sample:
+                w1, w2 = tup
+                w1_id, w1_text = w1
+                w2_id, w2_text = w2
+                w1_vec = _word2glove(w1_text)
+                w2_vec = _word2glove(w2_text)
+                lst.append(((w1_id, w1_vec), (w2_id, w2_vec)))
+            Xt[s_id] = lst
+            s_id += 1
+        return Xt
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--estimator", default='distance_model.pickle', type=str)

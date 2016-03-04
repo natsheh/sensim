@@ -8,6 +8,10 @@ import argparse
 import numpy as np
 import pickle
 
+
+from sklearn.base import BaseEstimator
+from sklearn.base import TransformerMixin
+
 from polyglot.base import TextFile
 from polyglot.text import Text
 
@@ -62,12 +66,33 @@ def _solve_duplictes(mk, ids):
             res.append(chk_dup[0])
     return _sort_arr(np.array(res))
 
+class PairGloveTransformer(BaseEstimator, TransformerMixin):
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        n_samples = len(X)
+        Xt = np.zeros(n_samples, dtype=object)
+        s_id = 0
+        for sample in X:
+            lst = []
+            for tup in sample:
+                w1, w2 = tup
+                w1_id, w1_text = w1
+                w2_id, w2_text = w2
+                w1_vec = _word2glove(w1_text)
+                w2_vec = _word2glove(w2_text)
+                lst.append(((w1_id, w1_vec), (w2_id, w2_vec)))
+            Xt[s_id] = lst
+            s_id += 1
+        return Xt
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--estimator", default='distance_model.pickle', type=str)
     parser.add_argument("--doc1", default='data/docs/Retrograde.txt', type=str)
     parser.add_argument("--doc2", default='data/docs/Dream.txt', type=str)
-    parser.add_argument("--threshold", default=2.5, type=float)
+    parser.add_argument("--threshold", default=2, type=float)
     parser.add_argument("--glovefile", default='data/glove.6B.300d.txt', type=str)
     args = parser.parse_args()
 

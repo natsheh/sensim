@@ -10,6 +10,30 @@ import numpy as np
 from sklearn.base import BaseEstimator
 from sklearn.base import TransformerMixin
 
+def _get_matches(r, th):
+    matches = []
+    for i in np.unique(r[:,0]):
+        s_slice = r[r[:,0]==i]
+        max_match = np.argmax(s_slice[:,2])
+        #if np.amax(s_slice[:,2]) > th:
+        matches.append(list(s_slice[max_match]))
+    return np.array(matches)
+
+def _sort_arr(arr, axis=0):
+    return arr[arr[:,axis].argsort()]
+
+def _solve_duplictes(mk, ids):
+    res = []
+    for id in ids:
+        chk_dup = mk[mk[:,1]==id]
+        if len(chk_dup) > 1:
+            mn = np.argmin(chk_dup[:,2])
+            chk_dup = np.delete(chk_dup, mn, axis=0)
+        if chk_dup.shape[0] > 0:
+            res.append(chk_dup[0])
+    return _sort_arr(np.array(res))
+
+
 class PairCosine(BaseEstimator, TransformerMixin):
     """Cosine similarity on paired data."""
 
@@ -50,3 +74,256 @@ class PairCosine(BaseEstimator, TransformerMixin):
             i+=1
 
         return Xt.reshape(n_pairs, 1)
+
+class SmallerOtherParing(BaseEstimator, TransformerMixin):
+    """Combine pairs of lists of words into list of paired words."""
+
+    def fit(self, X, y=None):
+        
+        """(Do nothing).
+
+        Parameters
+        ----------
+        :param X: array-like, shape (n_pair, 2)
+            Input data.
+
+        Returns
+        -------
+        :returns: self
+        """
+        return self
+
+    def transform(self, X):
+        """Generate pairs of list elements of all pairs in ``X``.
+
+        To be added.
+
+        Parameters
+        ----------
+        :param X: array-like, shape (n_pair, 2)
+            Input paired data where each pair element is a list of words
+
+        Returns
+        -------
+        :returns Xt: array-like, shape (n_pair, 1)
+            The transformed data where each element is a list like [(w_id, word), (w_id, word)]
+        """
+        
+        n_pairs, two = X.shape
+        Xt = np.zeros(n_pairs, dtype=object)
+        p = 0
+        for x1, x2 in X:
+            if len(x1) < len(x2):
+                smaller = x1
+                other = x2
+            else:
+                smaller = x2
+                other = x1
+            n_pair_pairs = len(x1) * len(x2)
+            X_pair = np.zeros(shape=(n_pair_pairs,2), dtype=object)
+            hash_tbl_pair = np.zeros(shape=(n_pair_pairs,2), dtype=object)
+            X_p = np.zeros(shape=(n_pair_pairs,2), dtype=object)
+
+            smaller_dict = {}
+            s_id = 0
+            for w1 in smaller:
+                s_id += 1
+                smaller_dict[s_id] = w1
+
+            o_id = 0
+            other_dict = {}
+            for w2 in other:
+                    o_id += 1
+                    other_dict[o_id] = w2
+            k = 0
+            for i in smaller_dict.keys():
+                for j in other_dict.keys():
+                    hash_tbl_pair[k] = [i, j]
+                    k += 1
+
+            i= 0
+            for w1 in smaller:
+                for w2 in other:
+                    X_pair[i] = [w1, w2]
+                    i += 1
+            
+            for i in range(n_pair_pairs):
+                X_p[i] = (hash_tbl_pair[i][0], X_pair[i][0]), (hash_tbl_pair[i][1], X_pair[i][1])
+            
+            Xt[p] = X_p
+            p += 1       
+        
+        return Xt
+
+class RefGroupPairCosine(BaseEstimator, TransformerMixin):
+    """Cosine similarity on paired data."""
+
+    def fit(self, X, y=None):
+        """(Do nothing).
+
+        Parameters
+        ----------
+        :param X: array-like, shape (n_samples,)
+            Input data 
+
+        Returns
+        -------
+        :returns: self
+        """
+        return self
+
+    def transform(self, X):
+        """Compute the cosine similarity of all pairs in ``X``.
+
+        To be added.
+
+        Parameters
+        ----------
+        :param X: array-like, shape (n_samples, 2)
+            Input paired data (output of PairGloveTransformer).
+
+        Returns
+        -------
+        :returns Xt: array-like, shape (n_samples,)
+            The transformed data: array of triples like (word_id, word_id, cosine_sim)
+        """
+        n_samples = len(X)
+        Xt = np.zeros(n_samples, dtype=object)
+        s_id = 0
+        for sample in X:
+            lst = []
+            for tup in sample:
+                w1, w2 = tup
+                w1_id, w1_vec = w1
+                w2_id, w2_vec = w2
+                cos_sim = cosine_similarity(w1_vec, w2_vec)
+                lst.append((w1_id, w2_id, cos_sim[0]))
+            Xt[s_id] = lst
+            s_id += 1
+        
+        return Xt
+
+class GetMatches(BaseEstimator, TransformerMixin):
+    """Get the best match for each word in smaller sentence from the other."""
+
+    def fit(self, X, y=None):
+        """(Do nothing).
+
+        Parameters
+        ----------
+        :param X: array-like, shape (n_samples,)
+            Input data 
+
+        Returns
+        -------
+        :returns: self
+        """
+        return self
+
+    def transform(self, X):
+        """Get the best match for each word in smaller sentence from the other.
+
+        To be added.
+
+        Parameters
+        ----------
+        :param X: array-like, shape (n_samples, 2)
+            Input paired data (output of RefGroupPairCosine).
+
+        Returns
+        -------
+        :returns Xt: array-like, shape (n_samples,)
+            The transformed data: array of triples like (word_id, word_id, cosine_sim)
+        """
+        n_samples = len(X)
+        Xt = np.zeros(n_samples, dtype=object)
+        s_id = 0
+        for sample in X:
+            r = np.array(map(list, sample))
+            Xt[s_id] = _get_matches(r, th=0.45)
+            s_id += 1
+        return Xt
+
+class SolveDuplicate(BaseEstimator, TransformerMixin):
+    """Solve duplicates of words in the other sentence of the GetMatches result."""
+
+    def fit(self, X, y=None):
+        """(Do nothing).
+
+        Parameters
+        ----------
+        :param X: array-like, shape (n_samples,)
+            Input data 
+
+        Returns
+        -------
+        :returns: self
+        """
+        return self
+
+    def transform(self, X):
+        """Solve duplicates of words in the other sentence of the GetMatches result.
+
+        To be added.
+
+        Parameters
+        ----------
+        :param X: array-like, shape (n_samples, 2)
+            Input paired data (output of GetMatches transformer.
+
+        Returns
+        -------
+        :returns Xt: array-like, shape (n_samples,)
+            The transformed data: array of triples like (word_id, word_id, cosine_sim)
+        """
+        n_samples = len(X)
+        Xt = np.zeros(n_samples, dtype=object)
+        s_id = 0
+        for sample in X:
+            r = np.array(sample)
+            ids= np.unique(r[:,1])
+            Xt[s_id] = _solve_duplictes(sample, ids)
+            s_id += 1
+        return Xt
+
+class AvgPOSCombiner(BaseEstimator, TransformerMixin):
+    """Compute the average of word similarity of the selected pairs."""
+
+    def fit(self, X, y=None):
+        """(Do nothing).
+
+        Parameters
+        ----------
+        :param X: array-like, shape (n_samples,)
+            Input data 
+
+        Returns
+        -------
+        :returns: self
+        """
+        return self
+
+    def transform(self, X):
+        """Compute the average of word similarity of the selected pairs.
+
+        To be added.
+
+        Parameters
+        ----------
+        :param X: array-like, shape (n_samples, 2)
+            Input paired data (output of GetMatches transformer.
+
+        Returns
+        -------
+        :returns Xt: array-like, shape (n_samples,)
+            The transformed data: array of feature values
+        """
+        n_samples = len(X)
+        Xt = np.zeros(n_samples, dtype=object)
+        s_id = 0
+        for sample in X:
+            r = np.array(sample)
+            sim_vals = np.unique(r[:,2])
+            Xt[s_id] = np.average(sim_vals)
+            s_id += 1
+        return Xt.reshape(n_samples, 1)
