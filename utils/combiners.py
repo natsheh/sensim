@@ -10,19 +10,18 @@ import numpy as np
 from sklearn.base import BaseEstimator
 from sklearn.base import TransformerMixin
 
-def _get_matches(r, th):
+def _get_matches(r):
     matches = []
     for i in np.unique(r[:,0]):
         s_slice = r[r[:,0]==i]
         max_match = np.argmax(s_slice[:,2])
-        #if np.amax(s_slice[:,2]) > th:
         matches.append(list(s_slice[max_match]))
     return np.array(matches)
 
 def _sort_arr(arr, axis=0):
     return arr[arr[:,axis].argsort()]
 
-def _solve_duplictes(mk, ids):
+def _solve_duplictes(mk, ids, th=None):
     res = []
     for id in ids:
         chk_dup = mk[mk[:,1]==id]
@@ -31,8 +30,15 @@ def _solve_duplictes(mk, ids):
             chk_dup = np.delete(chk_dup, mn, axis=0)
         if chk_dup.shape[0] > 0:
             res.append(chk_dup[0])
-    return _sort_arr(np.array(res))
+    sorted_res = _sort_arr(np.array(res))
+    if th is not None:
+        res = []
+        s = sorted_res
+        if len (s[s[:,2] >= th])> 0:
+            res.append((s[s[:,2] >= th]))
+    sorted_res = np.array(res)
 
+    return sorted_res
 
 class PairCosine(BaseEstimator, TransformerMixin):
     """Cosine similarity on paired data."""
@@ -240,7 +246,7 @@ class GetMatches(BaseEstimator, TransformerMixin):
         s_id = 0
         for sample in X:
             r = np.array(map(list, sample))
-            Xt[s_id] = _get_matches(r, th=0.45)
+            Xt[s_id] = _get_matches(r)
             s_id += 1
         return Xt
 
@@ -282,7 +288,7 @@ class SolveDuplicate(BaseEstimator, TransformerMixin):
         for sample in X:
             r = np.array(sample)
             ids= np.unique(r[:,1])
-            Xt[s_id] = _solve_duplictes(sample, ids)
+            Xt[s_id] = _solve_duplictes(sample, ids, th=0.33)
             s_id += 1
         return Xt
 
@@ -322,8 +328,11 @@ class AvgPOSCombiner(BaseEstimator, TransformerMixin):
         Xt = np.zeros(n_samples, dtype=object)
         s_id = 0
         for sample in X:
-            r = np.array(sample)
-            sim_vals = np.unique(r[:,2])
-            Xt[s_id] = np.average(sim_vals)
+            if len(sample) == 0:
+                Xt[s_id] = 0.0
+            else:
+                r = np.array(sample)
+                sim_vals = np.unique(r[0][:,2])
+                Xt[s_id] = np.average(sim_vals)
             s_id += 1
         return Xt.reshape(n_samples, 1)
