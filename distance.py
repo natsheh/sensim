@@ -207,11 +207,17 @@ def _build_distance_estimator(X, y, verbose=1):
             ]))),
             ("combiner", CosineSimilarity())
         ])),
+        ("sent_len_diff", Pipeline(steps=[
+            ('pairtransformer', PairTransformer(element_transformer=
+                FuncTransformer(dtype=None, func=len),
+        groupby=None)),
+            ('abs_diff', AbsoluteDifference()),
+            ])),
     ])
 
     # Train a classifier on these vectors
 
-    classifier = RandomForestRegressor(n_estimators=300,
+    classifier = RandomForestRegressor(n_estimators=500,
                                         verbose=verbose,
                                         n_jobs=8)
 
