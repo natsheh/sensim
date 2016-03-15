@@ -336,3 +336,53 @@ class AvgPOSCombiner(BaseEstimator, TransformerMixin):
                 Xt[s_id] = np.average(sim_vals)
             s_id += 1
         return Xt.reshape(n_samples, 1)
+
+class NumCombiner(BaseEstimator, TransformerMixin):
+    """to be added."""
+
+    def fit(self, X, y=None):
+        """(Do nothing).
+
+        Parameters
+        ----------
+        :param X: array-like, shape (n_samples,)
+            Input data 
+
+        Returns
+        -------
+        :returns: self
+        """
+        return self
+
+    def transform(self, X):
+        """Compute the normalized absolute difference of the pairs.
+
+        Compute the normalized absolute difference of the summation of 
+        the numbers found in each pair element.
+
+        Parameters
+        ----------
+        :param X: array-like, shape (n_samples, 2)
+            Input paired data (output of num transformer.
+
+        Returns
+        -------
+        :returns Xt: array-like, shape (n_samples,)
+            The transformed data: array of feature values
+        """
+        n_samples = len(X)
+        Xt = np.zeros(n_samples, dtype='float32')
+        s_id = 0
+        for sample in X:
+            x1, x2 = sample
+            if x1[0] == ' ' or x2[0] == ' ':
+                Xt[s_id] = 1.0
+            else:
+                x1sum = np.sum(x1)
+                x2sum = np.sum(x2)
+                if x1sum+x2sum == 0.0:
+                    Xt[s_id] == 0.0
+                else:
+                    Xt[s_id] = np.abs(x1sum-x2sum) / (x1sum+x2sum)
+            s_id += 1
+        return Xt.reshape(n_samples, 1)

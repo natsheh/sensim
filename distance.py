@@ -17,6 +17,7 @@ from utils import get_verbs
 from utils import get_auxiliary_verbs
 from utils import get_adjectives
 from utils import get_adverbs
+from utils import get_numbers
 from utils import get_1st_noun
 from utils import get_2nd_noun
 from utils import get_1st_proper_noun
@@ -50,6 +51,8 @@ from utils import RefGroupPairCosine
 from utils import GetMatches
 from utils import SolveDuplicate
 from utils import AvgPOSCombiner
+from utils import NumCombiner
+from utils import to_numeric
 
 from sklearn.pipeline import FeatureUnion
 from sklearn.pipeline import Pipeline
@@ -63,6 +66,8 @@ from beard.similarity import CosineSimilarity
 from beard.similarity import PairTransformer
 from beard.similarity import StringDistance
 from beard.similarity import EstimatorTransformer
+
+from digify import replace_spelled_numbers
 
 def _define_global(glove_file):
     global glove6b300d
@@ -212,6 +217,14 @@ def _build_distance_estimator(X, y, verbose=1):
                 FuncTransformer(dtype=None, func=len),
         groupby=None)),
             ('abs_diff', AbsoluteDifference()),
+            ])),
+        ("1st_num_diff", Pipeline(steps=[
+            ('pairtransformer', PairTransformer(element_transformer= Pipeline([
+                        ("rsn", FuncTransformer(func=replace_spelled_numbers)),
+                        ("get_num", FuncTransformer(func=get_numbers)),
+                        ("to_num", FuncTransformer(func=to_numeric)),
+        ]),groupby=None)),
+            ('1st_nm_comb', NumCombiner()),
             ])),
     ])
 

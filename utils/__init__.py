@@ -18,6 +18,7 @@ from .pos import get_verbs
 from .pos import get_auxiliary_verbs
 from .pos import get_adjectives
 from .pos import get_adverbs
+from .pos import get_numbers
 from .pos import get_1st_noun
 from .pos import get_2nd_noun
 from .pos import get_1st_proper_noun
@@ -42,6 +43,7 @@ from .pos import get_coordinating_conjunction
 from .pos import get_symbol
 from .pos import group_by_sentence
 from .wordvec import word2glove
+from .util import to_numeric
 from .transformers import FuncTransformer
 from .transformers import Shaper
 from .load_data import load_dataset
@@ -52,6 +54,7 @@ from .combiners import RefGroupPairCosine
 from .combiners import GetMatches
 from .combiners import SolveDuplicate
 from .combiners import AvgPOSCombiner
+from .combiners import NumCombiner
 
 
 __all__ = ("get_text",
@@ -62,6 +65,7 @@ __all__ = ("get_text",
            "get_auxiliary_verbs",
            "get_adjectives",
            "get_adverbs",
+           "get_numbers",
            "get_1st_noun",
            "get_2nd_noun",
            "get_1st_proper_noun",
@@ -86,6 +90,7 @@ __all__ = ("get_text",
            "get_symbol",
            "group_by_sentence",
            "word2glove",
+           "to_numeric",
            "FuncTransformer",
            "Shaper",
            "load_dataset",
@@ -95,4 +100,5 @@ __all__ = ("get_text",
            "RefGroupPairCosine",
            "GetMatches",
            "SolveDuplicate",
-           "AvgPOSCombiner")
+           "AvgPOSCombiner",
+           "NumCombiner")
