@@ -60,6 +60,7 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.base import BaseEstimator
 from sklearn.base import TransformerMixin
+from sklearn.grid_search import GridSearchCV
 
 from beard.similarity import AbsoluteDifference
 from beard.similarity import CosineSimilarity
@@ -68,6 +69,11 @@ from beard.similarity import StringDistance
 from beard.similarity import EstimatorTransformer
 
 from digify import replace_spelled_numbers
+from scipy.stats import pearsonr
+
+def _sts_score(est, X, y):
+    y_est = est.predict(X)
+    return pearsonr(y_est, y)[0]
 
 def _define_global(glove_file):
     global glove6b300d
@@ -229,10 +235,11 @@ def _build_distance_estimator(X, y, verbose=1):
     ])
 
     # Train a classifier on these vectors
-
-    classifier = RandomForestRegressor(n_estimators=500,
-                                        verbose=verbose,
-                                        n_jobs=8)
+    classifier = GridSearchCV(cv=10, estimator=RandomForestRegressor(n_jobs=-1), 
+                    param_grid={"max_depth": [7, 9],
+                                "n_estimators": [500, 1200],
+                                "n_jobs": [-1]}, 
+                    scoring=_sts_score)
 
     # Return the whole pipeline
     estimator = Pipeline([("transformer", transformer),
@@ -256,5 +263,5 @@ if __name__ == "__main__":
         X, y, verbose=1)
 
     pickle.dump(distance_estimator,
-                open("distance_model.pickle", "wb"),
+                open("gs_distance_model.pickle", "wb"),
                 protocol=pickle.HIGHEST_PROTOCOL)
