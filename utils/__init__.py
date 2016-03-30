@@ -41,6 +41,7 @@ from .pos import get_determiner
 from .pos import get_interjection
 from .pos import get_coordinating_conjunction
 from .pos import get_symbol
+from .pos import get_words
 from .pos import group_by_sentence
 from .wordvec import word2glove
 from .util import to_numeric
@@ -89,6 +90,7 @@ __all__ = ("get_text",
            "get_interjection",
            "get_coordinating_conjunction",
            "get_symbol",
+           "get_words",
            "group_by_sentence",
            "word2glove",
            "to_numeric",

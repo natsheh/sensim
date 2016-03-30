@@ -288,7 +288,7 @@ class SolveDuplicate(BaseEstimator, TransformerMixin):
         for sample in X:
             r = np.array(sample)
             ids= np.unique(r[:,1])
-            Xt[s_id] = _solve_duplictes(sample, ids, th=0.33)
+            Xt[s_id] = _solve_duplictes(sample, ids, th=0.01)
             s_id += 1
         return Xt
 

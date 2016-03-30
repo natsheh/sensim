@@ -14,6 +14,11 @@ import numpy as np
 def get_text(s):
     return s
 
+def get_words(s):
+    text = Text(s)
+    text.language = 'en'
+    return text.words
+
 def get_pos(s):
     """Get dictionary of list POS_tags words from the sentence.
 

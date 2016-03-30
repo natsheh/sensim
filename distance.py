@@ -10,6 +10,7 @@ import numpy as np
 import pickle
 
 from utils import get_text
+from utils import get_words
 from utils import get_nouns
 from utils import get_proper_nouns
 from utils import get_pronouns
@@ -155,6 +156,17 @@ def _build_distance_estimator(X, y, verbose=1):
             ('sd', SolveDuplicate()),
             ('ac', AvgPOSCombiner()),
             ])),
+        ("get_words", Pipeline(steps=[
+            ('pairtransformer', PairTransformer(element_transformer=
+                FuncTransformer(dtype=None, func=get_words),
+        groupby=None)), 
+            ('sop', SmallerOtherParing()),
+            ('pgt', PairGloveTransformer()),
+            ('rgpc', RefGroupPairCosine()),
+            ('gm', GetMatches()),
+            ('sd', SolveDuplicate()),
+            ('ac', AvgPOSCombiner()),
+            ])),
         ("get_auxiliary_verbs", Pipeline(steps=[
             ('pairtransformer', PairTransformer(element_transformer=
                 FuncTransformer(dtype=None, func=get_auxiliary_verbs),
@@ -180,6 +192,72 @@ def _build_distance_estimator(X, y, verbose=1):
         ("adverbs_glove", Pipeline(steps=[
             ('pairtransformer', PairTransformer(element_transformer=
                 FuncTransformer(dtype=None, func=get_adverbs),
+        groupby=None)), 
+            ('sop', SmallerOtherParing()),
+            ('pgt', PairGloveTransformer()),
+            ('rgpc', RefGroupPairCosine()),
+            ('gm', GetMatches()),
+            ('sd', SolveDuplicate()),
+            ('ac', AvgPOSCombiner()),
+            ])),
+        ("get_punctuation", Pipeline(steps=[
+            ('pairtransformer', PairTransformer(element_transformer=
+                FuncTransformer(dtype=None, func=get_punctuation),
+        groupby=None)), 
+            ('sop', SmallerOtherParing()),
+            ('pgt', PairGloveTransformer()),
+            ('rgpc', RefGroupPairCosine()),
+            ('gm', GetMatches()),
+            ('sd', SolveDuplicate()),
+            ('ac', AvgPOSCombiner()),
+            ])),
+        ("get_particle", Pipeline(steps=[
+            ('pairtransformer', PairTransformer(element_transformer=
+                FuncTransformer(dtype=None, func=get_particle),
+        groupby=None)), 
+            ('sop', SmallerOtherParing()),
+            ('pgt', PairGloveTransformer()),
+            ('rgpc', RefGroupPairCosine()),
+            ('gm', GetMatches()),
+            ('sd', SolveDuplicate()),
+            ('ac', AvgPOSCombiner()),
+            ])),
+        ("get_determiner", Pipeline(steps=[
+            ('pairtransformer', PairTransformer(element_transformer=
+                FuncTransformer(dtype=None, func=get_determiner),
+        groupby=None)), 
+            ('sop', SmallerOtherParing()),
+            ('pgt', PairGloveTransformer()),
+            ('rgpc', RefGroupPairCosine()),
+            ('gm', GetMatches()),
+            ('sd', SolveDuplicate()),
+            ('ac', AvgPOSCombiner()),
+            ])),
+        ("get_interjection", Pipeline(steps=[
+            ('pairtransformer', PairTransformer(element_transformer=
+                FuncTransformer(dtype=None, func=get_interjection),
+        groupby=None)), 
+            ('sop', SmallerOtherParing()),
+            ('pgt', PairGloveTransformer()),
+            ('rgpc', RefGroupPairCosine()),
+            ('gm', GetMatches()),
+            ('sd', SolveDuplicate()),
+            ('ac', AvgPOSCombiner()),
+            ])),
+        ("get_coordinating_conjunction", Pipeline(steps=[
+            ('pairtransformer', PairTransformer(element_transformer=
+                FuncTransformer(dtype=None, func=get_coordinating_conjunction),
+        groupby=None)), 
+            ('sop', SmallerOtherParing()),
+            ('pgt', PairGloveTransformer()),
+            ('rgpc', RefGroupPairCosine()),
+            ('gm', GetMatches()),
+            ('sd', SolveDuplicate()),
+            ('ac', AvgPOSCombiner()),
+            ])),
+        ("get_symbol", Pipeline(steps=[
+            ('pairtransformer', PairTransformer(element_transformer=
+                FuncTransformer(dtype=None, func=get_symbol),
         groupby=None)), 
             ('sop', SmallerOtherParing()),
             ('pgt', PairGloveTransformer()),
