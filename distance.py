@@ -18,22 +18,6 @@ from utils import get_auxiliary_verbs
 from utils import get_adjectives
 from utils import get_adverbs
 from utils import get_numbers
-from utils import get_1st_noun
-from utils import get_2nd_noun
-from utils import get_1st_proper_noun
-from utils import get_2nd_proper_noun
-from utils import get_1st_pronoun
-from utils import get_2nd_pronoun
-from utils import get_1st_verb
-from utils import get_2nd_verb
-from utils import get_1st_auxiliary_verb
-from utils import get_2nd_auxiliary_verb
-from utils import get_1st_adjective
-from utils import get_2nd_adjective
-from utils import get_1st_adverb
-from utils import get_2nd_adverb
-from utils import get_1st_number
-from utils import get_2nd_number
 from utils import get_punctuation
 from utils import get_particle
 from utils import get_determiner
@@ -53,10 +37,14 @@ from utils import SolveDuplicate
 from utils import AvgPOSCombiner
 from utils import NumCombiner
 from utils import to_numeric
+from utils import sts_score
+
+from digify import replace_spelled_numbers
 
 from sklearn.pipeline import FeatureUnion
 from sklearn.pipeline import Pipeline
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.linear_model import LassoLarsCV
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.base import BaseEstimator
 from sklearn.base import TransformerMixin
@@ -68,12 +56,6 @@ from beard.similarity import PairTransformer
 from beard.similarity import StringDistance
 from beard.similarity import EstimatorTransformer
 
-from digify import replace_spelled_numbers
-from scipy.stats import pearsonr
-
-def _sts_score(est, X, y):
-    y_est = est.predict(X)
-    return pearsonr(y_est, y)[0]
 
 def _define_global(glove_file):
     global glove6b300d
@@ -184,7 +166,7 @@ def _build_distance_estimator(X, y, verbose=1):
             ('sd', SolveDuplicate()),
             ('ac', AvgPOSCombiner()),
             ])),
-        ("nouns_glove", Pipeline(steps=[
+        ("adjectives_glove", Pipeline(steps=[
             ('pairtransformer', PairTransformer(element_transformer=
                 FuncTransformer(dtype=None, func=get_adjectives),
         groupby=None)), 
@@ -195,7 +177,7 @@ def _build_distance_estimator(X, y, verbose=1):
             ('sd', SolveDuplicate()),
             ('ac', AvgPOSCombiner()),
             ])),
-        ("nouns_glove", Pipeline(steps=[
+        ("adverbs_glove", Pipeline(steps=[
             ('pairtransformer', PairTransformer(element_transformer=
                 FuncTransformer(dtype=None, func=get_adverbs),
         groupby=None)), 
@@ -235,11 +217,8 @@ def _build_distance_estimator(X, y, verbose=1):
     ])
 
     # Train a classifier on these vectors
-    classifier = GridSearchCV(cv=10, estimator=RandomForestRegressor(n_jobs=-1), 
-                    param_grid={"max_depth": [7, 9],
-                                "n_estimators": [500, 1200],
-                                "n_jobs": [-1]}, 
-                    scoring=_sts_score)
+    #classifier = RandomForestRegressor(n_jobs=-1, max_depth=9, n_estimators=1800)
+    classifier = LassoLarsCV(cv=5, max_iter=1000, n_jobs=-1)
 
     # Return the whole pipeline
     estimator = Pipeline([("transformer", transformer),
@@ -250,18 +229,50 @@ def _build_distance_estimator(X, y, verbose=1):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset", default='sts', type=str)
+    parser.add_argument("--data_set", default='data/sts_gs_all.csv', type=str)
+    parser.add_argument("--training_set", default='data/sts_except_2015_gs.csv', type=str)
+    parser.add_argument("--test_set_headlines", default='data/sts_2015_headlines.csv', type=str)
+    parser.add_argument("--test_set_images", default='data/sts_2015_images.csv', type=str)
+    parser.add_argument("--test_set_answers_students", default='data/sts_2015_answers-students.csv', type=str)
     parser.add_argument("--verbose", default=1, type=int)
+    parser.add_argument("--evaluate", default=1, type=int)
     parser.add_argument("--glovefile", default='data/glove.6B.300d.txt', type=str)
     args = parser.parse_args()
 
-    X, y = load_dataset (args.dataset, args.verbose)
-
     _define_global(args.glovefile)
-    
-    distance_estimator = _build_distance_estimator(
-        X, y, verbose=1)
 
-    pickle.dump(distance_estimator,
-                open("gs_distance_model.pickle", "wb"),
+    if args.evaluate:
+
+        X, y = load_dataset (args.training_set, args.verbose)
+      
+        distance_estimator = _build_distance_estimator(
+            X, y, verbose=1)
+
+        pickle.dump(distance_estimator,
+                    open("traning_distance_model.pickle", "wb"),
+                    protocol=pickle.HIGHEST_PROTOCOL)
+        
+        score = dict()
+        X_test, y_test = load_dataset(args.test_set_headlines, verbose=1)
+        score['headlines_score'] = sts_score(distance_estimator,X_test, y_test)
+        X_test, y_test = load_dataset(args.test_set_images, verbose=1)
+        score['images_score'] = sts_score(distance_estimator,X_test, y_test)
+        X_test, y_test = load_dataset(args.test_set_answers_students, verbose=1)
+        score['answers_students_score'] = sts_score(distance_estimator,X_test, y_test)
+
+        if args.verbose == 1:
+            print score
+
+        pickle.dump(score,
+                open("score.pickle", "wb"),
                 protocol=pickle.HIGHEST_PROTOCOL)
+
+    else:
+        X, y = load_dataset (args.data_set, args.verbose)
+      
+        distance_estimator = _build_distance_estimator(
+            X, y, verbose=1)
+
+        pickle.dump(distance_estimator,
+                    open("distance_model.pickle", "wb"),
+                    protocol=pickle.HIGHEST_PROTOCOL)

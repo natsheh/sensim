@@ -7,6 +7,7 @@
 .. Author:: Hussein AL-NATSHEH <hussein.al-natsheh@ish-lyon.cnrs.fr>
 
 """
+from scipy.stats import pearsonr
 
 def to_numeric(s):
     res = []
@@ -16,3 +17,8 @@ def to_numeric(s):
     if len(res) < 1:
         res.append(' ')
     return res
+
+def sts_score(est, X, y):
+    y_est = est.predict(X)
+    return pearsonr(y_est, y)[0]
+
