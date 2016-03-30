@@ -44,6 +44,7 @@ from .pos import get_symbol
 from .pos import group_by_sentence
 from .wordvec import word2glove
 from .util import to_numeric
+from .util import sts_score
 from .transformers import FuncTransformer
 from .transformers import Shaper
 from .load_data import load_dataset
@@ -91,6 +92,7 @@ __all__ = ("get_text",
            "group_by_sentence",
            "word2glove",
            "to_numeric",
+           "sts_score",
            "FuncTransformer",
            "Shaper",
            "load_dataset",
