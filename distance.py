@@ -25,6 +25,9 @@ from utils import get_determiner
 from utils import get_interjection
 from utils import get_coordinating_conjunction
 from utils import get_symbol
+from utils import get_organizations
+from utils import get_persons
+from utils import get_locations
 from utils import group_by_sentence
 from utils import FuncTransformer
 from utils import Shaper
@@ -266,6 +269,39 @@ def _build_distance_estimator(X, y, verbose=1):
             ('sd', SolveDuplicate()),
             ('ac', AvgPOSCombiner()),
             ])),
+        ("get_organizations", Pipeline(steps=[
+            ('pairtransformer', PairTransformer(element_transformer=
+                FuncTransformer(dtype=None, func=get_organizations),
+        groupby=None)), 
+            ('sop', SmallerOtherParing()),
+            ('pgt', PairGloveTransformer()),
+            ('rgpc', RefGroupPairCosine()),
+            ('gm', GetMatches()),
+            ('sd', SolveDuplicate()),
+            ('ac', AvgPOSCombiner()),
+            ])),
+        ("get_persons", Pipeline(steps=[
+            ('pairtransformer', PairTransformer(element_transformer=
+                FuncTransformer(dtype=None, func=get_persons),
+        groupby=None)), 
+            ('sop', SmallerOtherParing()),
+            ('pgt', PairGloveTransformer()),
+            ('rgpc', RefGroupPairCosine()),
+            ('gm', GetMatches()),
+            ('sd', SolveDuplicate()),
+            ('ac', AvgPOSCombiner()),
+            ])),
+        ("get_locations", Pipeline(steps=[
+            ('pairtransformer', PairTransformer(element_transformer=
+                FuncTransformer(dtype=None, func=get_locations),
+        groupby=None)), 
+            ('sop', SmallerOtherParing()),
+            ('pgt', PairGloveTransformer()),
+            ('rgpc', RefGroupPairCosine()),
+            ('gm', GetMatches()),
+            ('sd', SolveDuplicate()),
+            ('ac', AvgPOSCombiner()),
+            ])),
         ("sent_tfidf", Pipeline([
             ("pairs", PairTransformer(element_transformer=Pipeline([
                 ("1st_verb", FuncTransformer(func=get_text)),
@@ -296,7 +332,7 @@ def _build_distance_estimator(X, y, verbose=1):
 
     # Train a classifier on these vectors
     #classifier = RandomForestRegressor(n_jobs=-1, max_depth=9, n_estimators=1800)
-    classifier = LassoLarsCV(cv=5, max_iter=1000, n_jobs=-1)
+    classifier = LassoLarsCV(cv=10, max_iter=1000, n_jobs=-1)
 
     # Return the whole pipeline
     estimator = Pipeline([("transformer", transformer),
