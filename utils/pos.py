@@ -19,6 +19,34 @@ def get_words(s):
     text.language = 'en'
     return text.words
 
+def get_name_entities(s):
+    text = Text(s)
+    text.language = 'en'
+    entities = text.entities
+    org = list(' ')
+    loc = list(' ')
+    per = list(' ')
+    for entity in entities:
+        if entity.tag == 'I-ORG':
+            org = list(entity)
+        elif entity.tag == 'I-PER':
+            per = list(entity)
+        else:
+            loc = list(entity)
+    return org, per, loc
+
+def get_organizations(s):
+    org, _, _ = get_name_entities(s)
+    return org
+
+def get_persons(s):
+    _, per, _ = get_name_entities(s)
+    return per
+
+def get_locations(s):
+    _, _, loc = get_name_entities(s)
+    return loc
+
 def get_pos(s):
     """Get dictionary of list POS_tags words from the sentence.
 
