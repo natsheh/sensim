@@ -9,8 +9,10 @@
 """
 
 from polyglot.text import Text
+import spacy
 import numpy as np
-
+global parser
+parser = spacy.load('en')
 def get_text(s):
     return s
 
@@ -18,6 +20,90 @@ def get_words(s):
     text = Text(s)
     text.language = 'en'
     return text.words
+
+def spacy_name_entities(s):
+    global parser # = spacy.load('en') # This is causing a memory problem being called each time we call the function
+    text = parser(unicode(s, 'utf-8'))
+    entities = list(text.ents)
+    org = list(' ')
+    loc = list(' ')
+    per = list(' ')
+    norp = list(' ')
+    fac = list(' ')
+    gpe = list(' ')
+    product = list(' ')
+    event = list(' ')
+    work_of_art = list(' ')
+    law = list(' ')
+    language = list(' ')
+    for entity in entities:
+        if entity.label_ == 'ORG':
+            org.append(entity)
+        if entity.label_ == 'PERSON':
+            per.append(entity)
+        if entity.label_ == 'LOC':
+            loc.append(entity)
+        if entity.label_ == 'NORP':
+            norp.append(entity)
+        if entity.label_ == 'FAC':
+            fac.append(entity)
+        if entity.label_ == 'GPE':
+            gpe.append(entity)
+        if entity.label_ == 'PRODUCT':
+            product.append(entity)
+        if entity.label_ == 'EVENT':
+            event.append(entity)
+        if entity.label_ == 'WORK_OF_ART':
+            work_of_art.append(entity)
+        if entity.label_ == 'LAW':
+            law.append(entity)
+        if entity.label_ == 'LANGUAGE':
+            language.append(entity)
+    return org, per, loc, norp, fac, gpe, product, event, work_of_art, law, language
+
+def spacy_organizations(s):
+    org, _, _, _, _, _, _, _, _, _, _ = spacy_name_entities(s)
+    return org
+
+def spacy_persons(s):
+    _, per, _, _, _, _, _, _, _, _, _ = spacy_name_entities(s)
+    return per
+
+def spacy_locations(s):
+    _, _, loc, _, _, _, _, _, _, _, _ = spacy_name_entities(s)
+    return loc
+
+def spacy_groups(s):
+    _, _, _, norp, _, _, _, _, _, _, _ = spacy_name_entities(s)
+    return norp
+
+def spacy_facilities(s):
+    _, _, _, _, fac, _, _, _, _, _, _ = spacy_name_entities(s)
+    return fac
+
+def spacy_geo_locations(s):
+    _, _, _, _, _, gpe, _, _, _, _, _ = spacy_name_entities(s)
+    return gpe
+
+def spacy_products(s):
+    _, _, _, _, _, _, product, _, _, _, _ = spacy_name_entities(s)
+    return product
+
+def spacy_events(s):
+    _, _, _, _, _, _, _, event, _, _, _ = spacy_name_entities(s)
+    return event
+
+def spacy_work_of_arts(s):
+    _, _, _, _, _, _, _, _, work_of_art, _, _ = spacy_name_entities(s)
+    return work_of_art
+
+def spacy_laws(s):
+    _, _, _, _, _, _, _, _, _, law, _ = spacy_name_entities(s)
+    return law
+
+def spacy_languages(s):
+    _, _, _, _, _, _, _, _, _, _, language = spacy_name_entities(s)
+    return language
 
 def get_name_entities(s):
     text = Text(s)

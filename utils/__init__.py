@@ -45,6 +45,17 @@ from .pos import get_words
 from .pos import get_organizations
 from .pos import get_persons
 from .pos import get_locations
+from .pos import spacy_organizations
+from .pos import spacy_persons
+from .pos import spacy_locations
+from .pos import spacy_groups
+from .pos import spacy_facilities
+from .pos import spacy_geo_locations
+from .pos import spacy_products
+from .pos import spacy_events
+from .pos import spacy_work_of_arts
+from .pos import spacy_laws
+from .pos import spacy_languages
 from .pos import group_by_sentence
 from .wordvec import word2glove
 from .util import to_numeric
@@ -97,6 +108,17 @@ __all__ = ("get_text",
            "get_organizations",
            "get_persons",
            "get_locations",
+           "spacy_organizations",
+           "spacy_persons",
+           "spacy_locations",
+           "spacy_groups",
+           "spacy_facilities",
+           "spacy_geo_locations",
+           "spacy_products",
+           "spacy_events",
+           "spacy_work_of_arts",
+           "spacy_laws",
+           "spacy_languages",
            "group_by_sentence",
            "word2glove",
            "to_numeric",
