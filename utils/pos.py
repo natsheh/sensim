@@ -38,27 +38,27 @@ def spacy_name_entities(s):
     language = list(' ')
     for entity in entities:
         if entity.label_ == 'ORG':
-            org.append(entity)
+            org.append(entity.orth_)
         if entity.label_ == 'PERSON':
-            per.append(entity)
+            per.append(entity.orth_)
         if entity.label_ == 'LOC':
-            loc.append(entity)
+            loc.append(entity.orth_)
         if entity.label_ == 'NORP':
-            norp.append(entity)
+            norp.append(entity.orth_)
         if entity.label_ == 'FAC':
-            fac.append(entity)
+            fac.append(entity.orth_)
         if entity.label_ == 'GPE':
-            gpe.append(entity)
+            gpe.append(entity.orth_)
         if entity.label_ == 'PRODUCT':
-            product.append(entity)
+            product.append(entity.orth_)
         if entity.label_ == 'EVENT':
-            event.append(entity)
+            event.append(entity.orth_)
         if entity.label_ == 'WORK_OF_ART':
-            work_of_art.append(entity)
+            work_of_art.append(entity.orth_)
         if entity.label_ == 'LAW':
-            law.append(entity)
+            law.append(entity.orth_)
         if entity.label_ == 'LANGUAGE':
-            language.append(entity)
+            language.append(entity.orth_)
     return org, per, loc, norp, fac, gpe, product, event, work_of_art, law, language
 
 def spacy_organizations(s):

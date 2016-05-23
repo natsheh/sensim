@@ -568,7 +568,6 @@ def _build_distance_estimator(X, y, w2v, PoS, NER, regressor, verbose=1):
 
     return estimator
 
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--vectorization_method", default='spacy', type=str)    #glove, spacy, gensim
