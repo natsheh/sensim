@@ -22,3 +22,17 @@ def sts_score(est, X, y):
     y_est = est.predict(X)
     return pearsonr(y_est, y)[0]
 
+def group_by_sentence(r):
+    """Grouping function for ``PairTransformer``.
+
+    Parameters
+    ----------
+    :param r: iterable
+        sentence in a singleton.
+
+    Returns
+    -------
+    :returns: string
+        Sentence id
+    """
+    return r[0]["sentence_id"]

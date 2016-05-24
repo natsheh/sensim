@@ -10,41 +10,43 @@
 
 """Helper functions."""
 
-from .pos import get_text
-from .pos import get_nouns
-from .pos import get_proper_nouns
-from .pos import get_pronouns
-from .pos import get_verbs
-from .pos import get_auxiliary_verbs
-from .pos import get_adjectives
-from .pos import get_adverbs
-from .pos import get_numbers
-from .pos import get_1st_noun
-from .pos import get_2nd_noun
-from .pos import get_1st_proper_noun
-from .pos import get_2nd_proper_noun
-from .pos import get_1st_pronoun
-from .pos import get_2nd_pronoun
-from .pos import get_1st_verb
-from .pos import get_2nd_verb
-from .pos import get_1st_auxiliary_verb
-from .pos import get_2nd_auxiliary_verb
-from .pos import get_1st_adjective
-from .pos import get_2nd_adjective
-from .pos import get_1st_adverb
-from .pos import get_2nd_adverb
-from .pos import get_1st_number
-from .pos import get_2nd_number
-from .pos import get_punctuation
-from .pos import get_particle
-from .pos import get_determiner
-from .pos import get_interjection
-from .pos import get_coordinating_conjunction
-from .pos import get_symbol
-from .pos import get_words
-from .pos import get_organizations
-from .pos import get_persons
-from .pos import get_locations
+from .polyglot_wrapper import polyglot_nouns
+from .polyglot_wrapper import polyglot_proper_nouns
+from .polyglot_wrapper import polyglot_pronouns
+from .polyglot_wrapper import polyglot_verbs
+from .polyglot_wrapper import polyglot_auxiliary_verbs
+from .polyglot_wrapper import polyglot_adjectives
+from .polyglot_wrapper import polyglot_adverbs
+from .polyglot_wrapper import polyglot_numbers
+from .polyglot_wrapper import polyglot_1st_noun
+from .polyglot_wrapper import polyglot_2nd_noun
+from .polyglot_wrapper import polyglot_1st_proper_noun
+from .polyglot_wrapper import polyglot_2nd_proper_noun
+from .polyglot_wrapper import polyglot_1st_pronoun
+from .polyglot_wrapper import polyglot_2nd_pronoun
+from .polyglot_wrapper import polyglot_1st_verb
+from .polyglot_wrapper import polyglot_2nd_verb
+from .polyglot_wrapper import polyglot_1st_auxiliary_verb
+from .polyglot_wrapper import polyglot_2nd_auxiliary_verb
+from .polyglot_wrapper import polyglot_1st_adjective
+from .polyglot_wrapper import polyglot_2nd_adjective
+from .polyglot_wrapper import polyglot_1st_adverb
+from .polyglot_wrapper import polyglot_2nd_adverb
+from .polyglot_wrapper import polyglot_1st_number
+from .polyglot_wrapper import polyglot_2nd_number
+from .polyglot_wrapper import polyglot_punctuation
+from .polyglot_wrapper import polyglot_particle
+from .polyglot_wrapper import polyglot_determiner
+from .polyglot_wrapper import polyglot_interjection
+from .polyglot_wrapper import polyglot_coordinating_conjunction
+from .polyglot_wrapper import polyglot_symbol
+from .polyglot_wrapper import polyglot_adpositions
+from .polyglot_wrapper import polyglot_others
+from .polyglot_wrapper import polyglot_subordinating_conjunctions
+from .polyglot_wrapper import polyglot_words
+from .polyglot_wrapper import polyglot_organizations
+from .polyglot_wrapper import polyglot_persons
+from .polyglot_wrapper import polyglot_locations
 from .spacy_wrapper import spacy_organizations
 from .spacy_wrapper import spacy_persons
 from .spacy_wrapper import spacy_locations
@@ -57,10 +59,30 @@ from .spacy_wrapper import spacy_work_of_arts
 from .spacy_wrapper import spacy_laws
 from .spacy_wrapper import spacy_languages
 from .spacy_wrapper import PairSpacyVecTransformer
-from .pos import group_by_sentence
-from .wordvec import word2glove
+from .spacy_wrapper import spacy_tokens
+from .spacy_wrapper import spacy_adj
+from .spacy_wrapper import spacy_adp
+from .spacy_wrapper import spacy_adv
+from .spacy_wrapper import spacy_aux
+from .spacy_wrapper import spacy_conj
+from .spacy_wrapper import spacy_det
+from .spacy_wrapper import spacy_intj
+from .spacy_wrapper import spacy_noun
+from .spacy_wrapper import spacy_num
+from .spacy_wrapper import spacy_part
+from .spacy_wrapper import spacy_pron
+from .spacy_wrapper import spacy_propn
+from .spacy_wrapper import spacy_punct
+from .spacy_wrapper import spacy_sconj
+from .spacy_wrapper import spacy_sym
+from .spacy_wrapper import spacy_verb
+from .spacy_wrapper import spacy_x
+from .spacy_wrapper import spacy_eol
+from .spacy_wrapper import spacy_space
+from .util import group_by_sentence
 from .util import to_numeric
 from .util import sts_score
+from .wordvec import word2glove
 from .transformers import FuncTransformer
 from .transformers import Shaper
 from .load_data import load_dataset
@@ -74,41 +96,43 @@ from .combiners import AvgPOSCombiner
 from .combiners import NumCombiner
 
 
-__all__ = ("get_text",
-           "get_nouns",
-           "get_proper_nouns",
-           "get_pronouns",
-           "get_verbs",
-           "get_auxiliary_verbs",
-           "get_adjectives",
-           "get_adverbs",
-           "get_numbers",
-           "get_1st_noun",
-           "get_2nd_noun",
-           "get_1st_proper_noun",
-           "get_2nd_proper_noun",
-           "get_1st_pronoun",
-           "get_2nd_pronoun",
-           "get_1st_verb",
-           "get_2nd_verb",
-           "get_1st_auxiliary_verb",
-           "get_2nd_auxiliary_verb",
-           "get_1st_adjective",
-           "get_2nd_adjective",
-           "get_1st_adverb",
-           "get_2nd_adverb",
-           "get_1st_number",
-           "get_2nd_number",
-           "get_punctuation",
-           "get_particle",
-           "get_determiner",
-           "get_interjection",
-           "get_coordinating_conjunction",
-           "get_symbol",
-           "get_words",
-           "get_organizations",
-           "get_persons",
-           "get_locations",
+__all__ = ("polyglot_nouns",
+           "polyglot_proper_nouns",
+           "polyglot_pronouns",
+           "polyglot_verbs",
+           "polyglot_auxiliary_verbs",
+           "polyglot_adjectives",
+           "polyglot_adverbs",
+           "polyglot_numbers",
+           "polyglot_1st_noun",
+           "polyglot_2nd_noun",
+           "polyglot_1st_proper_noun",
+           "polyglot_2nd_proper_noun",
+           "polyglot_1st_pronoun",
+           "polyglot_2nd_pronoun",
+           "polyglot_1st_verb",
+           "polyglot_2nd_verb",
+           "polyglot_1st_auxiliary_verb",
+           "polyglot_2nd_auxiliary_verb",
+           "polyglot_1st_adjective",
+           "polyglot_2nd_adjective",
+           "polyglot_1st_adverb",
+           "polyglot_2nd_adverb",
+           "polyglot_1st_number",
+           "polyglot_2nd_number",
+           "polyglot_punctuation",
+           "polyglot_particle",
+           "polyglot_determiner",
+           "polyglot_interjection",
+           "polyglot_coordinating_conjunction",
+           "polyglot_symbol",
+           "polyglot_adpositions",
+           "polyglot_others",
+           "polyglot_subordinating_conjunctions",
+           "polyglot_words",
+           "polyglot_organizations",
+           "polyglot_persons",
+           "polyglot_locations",
            "spacy_organizations",
            "spacy_persons",
            "spacy_locations",
@@ -121,10 +145,30 @@ __all__ = ("get_text",
            "spacy_laws",
            "spacy_languages",
            "PairSpacyVecTransformer",
+           "spacy_tokens",
+           "spacy_adj",
+           "spacy_adp",
+           "spacy_adv",
+           "spacy_aux",
+           "spacy_conj",
+           "spacy_det",
+           "spacy_intj",
+           "spacy_noun",
+           "spacy_num",
+           "spacy_part",
+           "spacy_pron",
+           "spacy_propn",
+           "spacy_punct",
+           "spacy_sconj",
+           "spacy_sym",
+           "spacy_verb",
+           "spacy_x",
+           "spacy_eol",
+           "spacy_space"
            "group_by_sentence",
-           "word2glove",
            "to_numeric",
            "sts_score",
+           "word2glove",
            "FuncTransformer",
            "Shaper",
            "load_dataset",
