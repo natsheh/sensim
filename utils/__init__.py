@@ -45,17 +45,18 @@ from .pos import get_words
 from .pos import get_organizations
 from .pos import get_persons
 from .pos import get_locations
-from .pos import spacy_organizations
-from .pos import spacy_persons
-from .pos import spacy_locations
-from .pos import spacy_groups
-from .pos import spacy_facilities
-from .pos import spacy_geo_locations
-from .pos import spacy_products
-from .pos import spacy_events
-from .pos import spacy_work_of_arts
-from .pos import spacy_laws
-from .pos import spacy_languages
+from .spacy_wrapper import spacy_organizations
+from .spacy_wrapper import spacy_persons
+from .spacy_wrapper import spacy_locations
+from .spacy_wrapper import spacy_groups
+from .spacy_wrapper import spacy_facilities
+from .spacy_wrapper import spacy_geo_locations
+from .spacy_wrapper import spacy_products
+from .spacy_wrapper import spacy_events
+from .spacy_wrapper import spacy_work_of_arts
+from .spacy_wrapper import spacy_laws
+from .spacy_wrapper import spacy_languages
+from .spacy_wrapper import PairSpacyVecTransformer
 from .pos import group_by_sentence
 from .wordvec import word2glove
 from .util import to_numeric
@@ -119,6 +120,7 @@ __all__ = ("get_text",
            "spacy_work_of_arts",
            "spacy_laws",
            "spacy_languages",
+           "PairSpacyVecTransformer",
            "group_by_sentence",
            "word2glove",
            "to_numeric",
