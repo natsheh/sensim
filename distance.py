@@ -8,7 +8,6 @@ import pandas as pd
 import argparse
 import numpy as np
 import pickle
-import spacy
 
 from utils import get_text
 from utils import get_words
@@ -29,92 +28,19 @@ from utils import get_symbol
 from utils import get_organizations
 from utils import get_persons
 from utils import get_locations
-global parser
-en_parser = spacy.load('en')
 
-def spacy_name_entities(s):
-    #global parser
-    text = en_parser(unicode(s, 'utf-8'))
-    entities = list(text.ents)
-    org = list(' ')
-    loc = list(' ')
-    per = list(' ')
-    norp = list(' ')
-    fac = list(' ')
-    gpe = list(' ')
-    product = list(' ')
-    event = list(' ')
-    work_of_art = list(' ')
-    law = list(' ')
-    language = list(' ')
-    for entity in entities:
-        if entity.label_ == 'ORG':
-            org.append(entity.orth_)
-        if entity.label_ == 'PERSON':
-            per.append(entity.orth_)
-        if entity.label_ == 'LOC':
-            loc.append(entity.orth_)
-        if entity.label_ == 'NORP':
-            norp.append(entity.orth_)
-        if entity.label_ == 'FAC':
-            fac.append(entity.orth_)
-        if entity.label_ == 'GPE':
-            gpe.append(entity.orth_)
-        if entity.label_ == 'PRODUCT':
-            product.append(entity.orth_)
-        if entity.label_ == 'EVENT':
-            event.append(entity.orth_)
-        if entity.label_ == 'WORK_OF_ART':
-            work_of_art.append(entity.orth_)
-        if entity.label_ == 'LAW':
-            law.append(entity.orth_)
-        if entity.label_ == 'LANGUAGE':
-            language.append(entity.orth_)
-    return org, per, loc, norp, fac, gpe, product, event, work_of_art, law, language
-
-def spacy_organizations(s):
-    org, _, _, _, _, _, _, _, _, _, _ = spacy_name_entities(s)
-    return org
-
-def spacy_persons(s):
-    _, per, _, _, _, _, _, _, _, _, _ = spacy_name_entities(s)
-    return per
-
-def spacy_locations(s):
-    _, _, loc, _, _, _, _, _, _, _, _ = spacy_name_entities(s)
-    return loc
-
-def spacy_groups(s):
-    _, _, _, norp, _, _, _, _, _, _, _ = spacy_name_entities(s)
-    return norp
-
-def spacy_facilities(s):
-    _, _, _, _, fac, _, _, _, _, _, _ = spacy_name_entities(s)
-    return fac
-
-def spacy_geo_locations(s):
-    _, _, _, _, _, gpe, _, _, _, _, _ = spacy_name_entities(s)
-    return gpe
-
-def spacy_products(s):
-    _, _, _, _, _, _, product, _, _, _, _ = spacy_name_entities(s)
-    return product
-
-def spacy_events(s):
-    _, _, _, _, _, _, _, event, _, _, _ = spacy_name_entities(s)
-    return event
-
-def spacy_work_of_arts(s):
-    _, _, _, _, _, _, _, _, work_of_art, _, _ = spacy_name_entities(s)
-    return work_of_art
-
-def spacy_laws(s):
-    _, _, _, _, _, _, _, _, _, law, _ = spacy_name_entities(s)
-    return law
-
-def spacy_languages(s):
-    _, _, _, _, _, _, _, _, _, _, language = spacy_name_entities(s)
-    return language
+from utils import spacy_organizations
+from utils import spacy_persons
+from utils import spacy_locations
+from utils import spacy_groups
+from utils import spacy_facilities
+from utils import spacy_geo_locations
+from utils import spacy_products
+from utils import spacy_events
+from utils import spacy_work_of_arts
+from utils import spacy_laws
+from utils import spacy_languages
+from utils import PairSpacyVecTransformer
 
 from utils import group_by_sentence
 from utils import FuncTransformer
@@ -150,46 +76,9 @@ from beard.similarity import EstimatorTransformer
 
 
 def _define_global(glove_file):
-    global glove6b300d
-    glove6b300d = load_glove(glove_file, verbose=1)
-    global en_parser
-    global vocab
-    en_parser = spacy.load('en')
-    vocab = en_parser.vocab
+    global glove
+    glove = load_glove(glove_file, verbose=1)
 
-from polyglot.text import Text
-import numpy as np
-
-def _spacy_vec(word):
-    word = word.encode('ascii','ignore').decode('ascii')
-    if word not in vocab:
-        return np.zeros(300, dtype=float, order='C').reshape(1, -1)
-    else:
-        w = vocab[word]
-        w_vec = w.vector
-        return np.array(w_vec).reshape(1, -1)
-
-
-class PairSpacyVecTransformer(BaseEstimator, TransformerMixin):
-    def fit(self, X, y=None):
-        return self
-
-    def transform(self, X):
-        n_samples = len(X)
-        Xt = np.zeros(n_samples, dtype=object)
-        s_id = 0
-        for sample in X:
-            lst = []
-            for tup in sample:
-                w1, w2 = tup
-                w1_id, w1_text = w1
-                w2_id, w2_text = w2
-                w1_vec = _spacy_vec(w1_text)
-                w2_vec = _spacy_vec(w2_text)
-                lst.append(((w1_id, w1_vec), (w2_id, w2_vec)))
-            Xt[s_id] = lst
-            s_id += 1
-        return Xt
 
 def _word2glove(word):
     """Get the GloVe vector representation of the word.
@@ -208,10 +97,10 @@ def _word2glove(word):
         Glove vector of the word
     """    
     word = word.lower()
-    if word not in glove6b300d.index:
+    if word not in glove.index:
         return np.zeros(300, dtype=float, order='C')
     else:
-        return np.array(glove6b300d.loc[word])
+        return np.array(glove.loc[word])
 
 class PairGloveTransformer(BaseEstimator, TransformerMixin):
     def fit(self, X, y=None):
@@ -235,7 +124,7 @@ class PairGloveTransformer(BaseEstimator, TransformerMixin):
         return Xt
 
 def _build_distance_estimator(X, y, w2v, PoS, NER, regressor, verbose=1):
-    # ToDo: redefine get_pos based on PoS value, same for NER, w2v and regressor
+    # ToDo: re-define get_pos based on PoS value, same for NER, w2v and regressor
     #   OR: add features using incremental FeatureUnion based on the passed 
     #       arguments value
     """Build a vector reprensation of a pair of signatures."""
@@ -559,8 +448,10 @@ def _build_distance_estimator(X, y, w2v, PoS, NER, regressor, verbose=1):
     # Train a classifier on these vectors
     if regressor == 'lasso':
         classifier = LassoLarsCV(cv=10, max_iter=1000, n_jobs=-1)
+    elif regressor == 'RF':
+        classifier = RandomForestRegressor(n_jobs=-1, max_depth=9, n_estimators=1500)
     else:
-        classifier = RandomForestRegressor(n_jobs=-1, max_depth=9, n_estimators=1800)
+        print('Error passing the regressor type')
 
     # Return the whole pipeline
     estimator = Pipeline([("transformer", transformer),
@@ -574,6 +465,7 @@ if __name__ == "__main__":
     parser.add_argument("--PoS_method", default='polyglot', type=str)   #spacy, polyglot
     parser.add_argument("--NER_method", default='spacy', type=str)  #spacy, polyglot
     parser.add_argument("--regressor", default='lasso', type=str)   #lasso, RF
+    parser.add_argument("--data_set", default='data/sts_gs_all.csv', type=str)
     parser.add_argument("--training_set", default='data/sts_except_2015_gs.csv', type=str)
     parser.add_argument("--test_set_headlines", default='data/sts_2015_headlines.csv', type=str)
     parser.add_argument("--test_set_images", default='data/sts_2015_images.csv', type=str)
@@ -588,7 +480,8 @@ if __name__ == "__main__":
     NER = args.NER_method
     regressor = args.regressor
 
-    _define_global(args.glovefile)
+    if w2v == 'glove':
+        _define_global(args.glovefile)
 
     if args.evaluate:
 
