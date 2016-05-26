@@ -79,6 +79,7 @@ from .spacy_wrapper import spacy_verb
 from .spacy_wrapper import spacy_x
 from .spacy_wrapper import spacy_eol
 from .spacy_wrapper import spacy_space
+from .util import get_text
 from .util import group_by_sentence
 from .util import to_numeric
 from .util import sts_score
@@ -164,7 +165,8 @@ __all__ = ("polyglot_nouns",
            "spacy_verb",
            "spacy_x",
            "spacy_eol",
-           "spacy_space"
+           "spacy_space",
+           "get_text",
            "group_by_sentence",
            "to_numeric",
            "sts_score",

@@ -9,6 +9,10 @@
 """
 from scipy.stats import pearsonr
 
+
+def get_text(s):
+    return s
+
 def to_numeric(s):
     res = []
     for n in s:

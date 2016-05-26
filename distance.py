@@ -64,6 +64,7 @@ from utils import spacy_x
 from utils import spacy_eol
 from utils import spacy_space
 
+from utils import get_text
 from utils import group_by_sentence
 from utils import FuncTransformer
 from utils import Shaper
@@ -96,9 +97,6 @@ from beard.similarity import PairTransformer
 from beard.similarity import StringDistance
 from beard.similarity import EstimatorTransformer
 
-
-def get_text(s):
-    return s
 
 def _define_global(glove_file):
     global glove
