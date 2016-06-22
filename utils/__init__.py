@@ -83,6 +83,7 @@ from .util import get_text
 from .util import group_by_sentence
 from .util import to_numeric
 from .util import sts_score
+from .util import de_contraction
 from .wordvec import word2glove
 from .transformers import FuncTransformer
 from .transformers import Shaper
@@ -170,6 +171,7 @@ __all__ = ("polyglot_nouns",
            "group_by_sentence",
            "to_numeric",
            "sts_score",
+           "de_contraction",
            "word2glove",
            "FuncTransformer",
            "Shaper",
