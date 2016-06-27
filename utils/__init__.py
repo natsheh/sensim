@@ -79,6 +79,7 @@ from .spacy_wrapper import spacy_verb
 from .spacy_wrapper import spacy_x
 from .spacy_wrapper import spacy_eol
 from .spacy_wrapper import spacy_space
+from .sense2vec_wrapper import sense_tokens
 from .enchant_wrapper import spell_check
 from .util import get_text
 from .util import group_by_sentence
@@ -168,6 +169,7 @@ __all__ = ("polyglot_nouns",
            "spacy_x",
            "spacy_eol",
            "spacy_space",
+           "sense_tokens",
            "spell_check",
            "get_text",
            "group_by_sentence",
