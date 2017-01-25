@@ -30,6 +30,7 @@ from utils.polyglot import polyglot_locations
 from utils.polyglot import polyglot_adpositions
 from utils.polyglot import polyglot_others
 from utils.polyglot import polyglot_subordinating_conjunctions
+from utils.polyglot import PairPolyglotVecTransformer
 
 from utils.spacy import spacy_organizations
 from utils.spacy import spacy_persons
@@ -69,7 +70,6 @@ from utils import group_by_sentence
 from utils import FuncTransformer
 from utils import Shaper
 from utils import load_dataset
-from utils import load_glove
 from utils import PairCosine
 from utils import SmallerOtherParing
 from utils import RefGroupPairCosine
@@ -96,12 +96,18 @@ from beard.similarity import CosineSimilarity
 from beard.similarity import PairTransformer
 from beard.similarity import StringDistance
 from beard.similarity import EstimatorTransformer
+from polyglot.mapping import Embedding
 
-
-def _define_global(glove_file):
+def _load_glove(glove_file, verbose=1):
     global glove
-    glove = load_glove(glove_file, verbose=1)
-
+    #glove = pd.read_csv(glove_file, sep=' ', skiprows=[8], index_col=0, header=None, encoding='utf-8')
+    glove = Embedding.from_glove(glove_file)
+    if verbose == 2:
+        print 'GloVe shape:', glove.shape
+        print 'GloVe first 10:', glove.head(n=10)
+    elif verbose == 1:
+        print 'GloVe shape:', glove.shape
+    return glove
 
 def _word2glove(word):
     """Get the GloVe vector representation of the word.
@@ -120,10 +126,12 @@ def _word2glove(word):
         Glove vector of the word
     """    
     word = word.lower()
-    if word not in glove.index:
-        return np.zeros(300, dtype=float, order='C')
+    if word not in glove.vocabulary:
+        word_vec = np.zeros(300, dtype=float, order='C')
+        return word_vec.reshape(1, -1)
     else:
-        return np.array(glove.loc[word])
+        word_vec = np.array(glove[word])
+        return word_vec.reshape(1, -1)
 
 class PairGloveTransformer(BaseEstimator, TransformerMixin):
     def fit(self, X, y=None):
@@ -152,6 +160,8 @@ def _build_distance_estimator(X, y, w2v, PoS, NER, regressor, verbose=1):
         PairVecTransformer = PairGloveTransformer
     elif w2v == 'spacy':
         PairVecTransformer = PairSpacyVecTransformer
+    elif w2v == 'polyglot':
+        PairVecTransformer = PairPolyglotVecTransformer
     else:
         print('error passing w2v argument value')
 
@@ -575,15 +585,18 @@ def _build_distance_estimator(X, y, w2v, PoS, NER, regressor, verbose=1):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--vectorization_method", default='spacy', type=str)    #glove, spacy, gensim
+    parser.add_argument("--vectorization_method", default='spacy', type=str)    #glove, spacy, polygolt
     parser.add_argument("--PoS_method", default='spacy', type=str)   #spacy, polyglot
     parser.add_argument("--NER_method", default='spacy', type=str)  #spacy, polyglot
-    parser.add_argument("--regressor", default='lasso', type=str)   #lasso, RF
-    parser.add_argument("--data_set", default='data/sts_gs_all.csv', type=str)
-    parser.add_argument("--training_set", default='data/sts_except_2015_gs.csv', type=str)
-    parser.add_argument("--test_set_headlines", default='data/sts_2015_headlines.csv', type=str)
+    parser.add_argument("--regressor", default='RF', type=str)   #lasso, RF
+    parser.add_argument("--data_set", default='data/sts_2017_all_except_postediting.csv', type=str)
+    parser.add_argument("--training_set", default='data/sts_2016_train.csv', type=str)
+    parser.add_argument("--test_set_headlines", default='data/sts_2016_test_headlines.csv', type=str)
     parser.add_argument("--test_set_images", default='data/sts_2015_images.csv', type=str)
     parser.add_argument("--test_set_answers_students", default='data/sts_2015_answers-students.csv', type=str)
+    parser.add_argument("--test_set_answer_answer", default='data/sts_2016_test_answer-answer.csv', type=str)
+    parser.add_argument("--test_set_plagiarism", default='data/sts_2016_test_plagiarism.csv', type=str)
+    parser.add_argument("--test_set_question_question", default='data/sts_2016_test_question-question', type=str)
     parser.add_argument("--verbose", default=1, type=int)
     parser.add_argument("--evaluate", default=1, type=int)
     parser.add_argument("--glovefile", default='data/glove.6B.300d.txt', type=str)
@@ -595,7 +608,7 @@ if __name__ == "__main__":
     regressor = args.regressor
 
     if w2v == 'glove':
-        _define_global(args.glovefile)
+        _load_glove(args.glovefile, verbose=args.verbose)
 
     if args.evaluate:
 
@@ -605,7 +618,7 @@ if __name__ == "__main__":
             X, y, w2v, PoS, NER, regressor, verbose=1)
 
         pickle.dump(distance_estimator,
-                    open("traning_distance_model.pickle", "wb"),
+                    open("traning_distance_model"+regressor+".pickle", "wb"),
                     protocol=pickle.HIGHEST_PROTOCOL)
         
         score = dict()
@@ -615,6 +628,12 @@ if __name__ == "__main__":
         score['images_score'] = sts_score(distance_estimator,X_test, y_test)
         X_test, y_test = load_dataset(args.test_set_answers_students, verbose=1)
         score['answers_students_score'] = sts_score(distance_estimator,X_test, y_test)
+        X_test, y_test = load_dataset(args.test_set_answer_answer, verbose=1)
+        score['answer_answer_score'] = sts_score(distance_estimator,X_test, y_test)
+        X_test, y_test = load_dataset(args.test_set_plagiarism, verbose=1)
+        score['plagiarism_score'] = sts_score(distance_estimator,X_test, y_test)
+        X_test, y_test = load_dataset(args.test_set_question_question, verbose=1)
+        score['question-question_score'] = sts_score(distance_estimator,X_test, y_test)
 
         if args.verbose == 1:
             print score

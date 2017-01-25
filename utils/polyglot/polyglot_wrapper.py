@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 #
 # This file is part of sensim
+# License: BSD 3 clause
+# 2016, 2017
 
 """Helpers for sentence semantic similarity model.
 
@@ -9,7 +11,13 @@
 """
 
 from polyglot.text import Text
+from polyglot.mapping import Embedding
 import numpy as np
+
+from sklearn.base import BaseEstimator
+from sklearn.base import TransformerMixin
+
+vocab = Embedding.load("../polyglot_data/embeddings2/en/embeddings_pkl.tar.bz2")
 
 def polyglot_words(s):
     text = Text(s)
@@ -652,3 +660,33 @@ def polyglot_2nd_number(s):
         return numbers[1]
     else:
         return (' ')
+
+# Get the vector representation of the word using polyglot
+def _polyglot_vec(word):
+    word = word.encode('ascii','ignore').decode('ascii')
+    if word not in vocab:
+        return np.zeros(64, dtype=float, order='C').reshape(1, -1)
+    else:
+        w = vocab[word]
+        return w.reshape(1, -1)
+
+class PairPolyglotVecTransformer(BaseEstimator, TransformerMixin):
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        n_samples = len(X)
+        Xt = np.zeros(n_samples, dtype=object)
+        s_id = 0
+        for sample in X:
+            lst = []
+            for tup in sample:
+                w1, w2 = tup
+                w1_id, w1_text = w1
+                w2_id, w2_text = w2
+                w1_vec = _polyglot_vec(w1_text)
+                w2_vec = _polyglot_vec(w2_text)
+                lst.append(((w1_id, w1_vec), (w2_id, w2_vec)))
+            Xt[s_id] = lst
+            s_id += 1
+        return Xt
