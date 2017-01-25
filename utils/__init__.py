@@ -19,7 +19,6 @@ from .wordvec import word2glove
 from .transformers import FuncTransformer
 from .transformers import Shaper
 from .load_data import load_dataset
-from .load_data import load_glove
 from .combiners import PairCosine
 from .combiners import SmallerOtherParing
 from .combiners import RefGroupPairCosine
@@ -38,7 +37,6 @@ __all__ = ("get_text",
            "FuncTransformer",
            "Shaper",
            "load_dataset",
-           "load_glove",
            "PairCosine",
            "SmallerOtherParing",
            "RefGroupPairCosine",

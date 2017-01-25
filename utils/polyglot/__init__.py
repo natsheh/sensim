@@ -47,6 +47,7 @@ from .polyglot_wrapper import polyglot_words
 from .polyglot_wrapper import polyglot_organizations
 from .polyglot_wrapper import polyglot_persons
 from .polyglot_wrapper import polyglot_locations
+from .polyglot_wrapper import PairPolyglotVecTransformer
 
 __all__ = ("polyglot_nouns",
            "polyglot_proper_nouns",
@@ -84,4 +85,5 @@ __all__ = ("polyglot_nouns",
            "polyglot_words",
            "polyglot_organizations",
            "polyglot_persons",
-           "polyglot_locations")
+           "polyglot_locations",
+           "PairPolyglotVecTransformer")
