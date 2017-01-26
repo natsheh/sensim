@@ -596,7 +596,7 @@ if __name__ == "__main__":
     parser.add_argument("--test_set_answers_students", default='data/sts_2015_answers-students.csv', type=str)
     parser.add_argument("--test_set_answer_answer", default='data/sts_2016_test_answer-answer.csv', type=str)
     parser.add_argument("--test_set_plagiarism", default='data/sts_2016_test_plagiarism.csv', type=str)
-    parser.add_argument("--test_set_question_question", default='data/sts_2016_test_question-question', type=str)
+    parser.add_argument("--test_set_question_question", default='data/sts_2016_test_question-question.csv', type=str)
     parser.add_argument("--verbose", default=1, type=int)
     parser.add_argument("--evaluate", default=1, type=int)
     parser.add_argument("--glovefile", default='data/glove.6B.300d.txt', type=str)
