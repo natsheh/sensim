@@ -2,7 +2,7 @@
 
 # Author: Hussein AL-NATSHEH <hussein.al-natsheh@ish-lyon.cnrs.fr>
 # License: BSD 3 clause
-# 2016
+# 2016, 2017
 
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np

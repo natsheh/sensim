@@ -8,7 +8,49 @@
 
 """
 from scipy.stats import pearsonr
+import numpy as np
+import json
 
+domaim_class = {'FNWN': 'DEF',
+                'MSRpar': 'PARA',
+                'MSRvid': 'IMG',
+                'OnWN': 'DEF',
+                'SMT': 'NEWS',
+                'SMTeuroparl': 'NEWS',
+                'answer-answer': 'QA',
+                'answers-forums': 'QA',
+                'answers-students': 'QA',
+                'belief': 'PARA',
+                'deft-forum': 'QA',
+                'deft-news': 'NEWS',
+                'headlines': 'NEWS',
+                'images': 'IMG',
+                'plagiarism': 'PARA',
+                'postediting': 'PARA',
+                'question-question': 'QA',
+                'surprise.OnWN': 'DEF',
+                'surprise.SMTnews': 'NEWS',
+                'tweet-news': 'NEWS'}
+
+class_numeric_value = {'DEF': 1,
+                'PARA': 2,
+                'IMG': 3,
+                'NEWS': 4,
+                'QA': 5}
+
+domain_class_list = np.unique(domaim_class.values())
+domain_class_vec_size = len(domain_class_list)
+
+def get_domain_class(s):
+    return domaim_class[s]
+
+def domain_class_numeric_value(s):
+    return class_numeric_value[s]
+
+def domain_class2vec(s):
+    class_vec = np.zeros(domain_class_vec_size, dtype=np.int)
+    class_vec[np.where(domain_class_list== s)] = 1
+    return class_vec
 
 def get_text(s):
     return s

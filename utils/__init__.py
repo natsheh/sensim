@@ -10,6 +10,9 @@
 
 """Helper functions."""
 
+from .util import get_domain_class
+from .util import domain_class2vec
+from .util import domain_class_numeric_value
 from .util import get_text
 from .util import group_by_sentence
 from .util import to_numeric
@@ -27,8 +30,10 @@ from .combiners import SolveDuplicate
 from .combiners import AvgPOSCombiner
 from .combiners import NumCombiner
 
-
-__all__ = ("get_text",
+__all__ = ("get_domain_class",
+           "domain_class2vec",
+           "domain_class_numeric_value",
+           "get_text",
            "group_by_sentence",
            "to_numeric",
            "sts_score",

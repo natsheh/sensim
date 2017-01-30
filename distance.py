@@ -65,6 +65,8 @@ from utils.spacy import spacy_x
 from utils.spacy import spacy_eol
 from utils.spacy import spacy_space
 
+from utils import get_domain_class
+from utils import domain_class_numeric_value
 from utils import get_text
 from utils import group_by_sentence
 from utils import FuncTransformer
@@ -100,7 +102,6 @@ from polyglot.mapping import Embedding
 
 def _load_glove(glove_file, verbose=1):
     global glove
-    #glove = pd.read_csv(glove_file, sep=' ', skiprows=[8], index_col=0, header=None, encoding='utf-8')
     glove = Embedding.from_glove(glove_file)
     if verbose == 2:
         print 'GloVe shape:', glove.shape
@@ -154,8 +155,9 @@ class PairGloveTransformer(BaseEstimator, TransformerMixin):
             s_id += 1
         return Xt
 
-def _build_distance_estimator(X, y, w2v, PoS, NER, regressor, verbose=1):
+def _build_distance_transformer(w2v, PoS, NER, verbose=1):
     """Build a vector reprensation of a pair of signatures."""
+
     if w2v == 'glove':
         PairVecTransformer = PairGloveTransformer
     elif w2v == 'spacy':
@@ -206,7 +208,7 @@ def _build_distance_estimator(X, y, w2v, PoS, NER, regressor, verbose=1):
     else:
         print('error passing PoS argument value')
 
-    transformer = FeatureUnion([
+    pair_transformer = FeatureUnion([
         ("nouns_glove", Pipeline(steps=[
         	('pairtransformer', PairTransformer(element_transformer=
                 FuncTransformer(dtype=None, func=get_nouns),
@@ -569,6 +571,12 @@ def _build_distance_estimator(X, y, w2v, PoS, NER, regressor, verbose=1):
             ])),
     ])
 
+    domain_transformer = Pipeline(steps=[('get_domain_class', FuncTransformer(dtype=None, func=get_domain_class)),
+        ('domain_class2vec',FuncTransformer(dtype=None, func=domain_class_numeric_value))])  
+
+    return pair_transformer, domain_transformer
+
+def _build_distance_estimator(X, y, regressor, verbose=1):
     # Train a classifier on these vectors
     if regressor == 'lasso':
         classifier = LassoLarsCV(cv=10, max_iter=1024, n_jobs=-1)
@@ -577,26 +585,60 @@ def _build_distance_estimator(X, y, w2v, PoS, NER, regressor, verbose=1):
     else:
         print('Error passing the regressor type')
 
-    # Return the whole pipeline
-    estimator = Pipeline([("transformer", transformer),
-                          ("classifier", classifier)]).fit(X, y)
-
+    estimator = classifier.fit(X, y)
     return estimator
+
+def _estimate(data_file, w2v, PoS, NER, regressor, verbose):
+    pair_transformer, domain_transformer = _build_distance_transformer(w2v, PoS, NER, verbose)
+    X, y = _transform(data_file, pair_transformer, domain_transformer, verbose)
+    distance_estimator = _build_distance_estimator(X, y, regressor, verbose)
+    return distance_estimator, pair_transformer, domain_transformer
+
+def _transform(data_file, pair_transformer, domain_transformer, verbose):
+    data = load_dataset (data_file, verbose)
+    Xd =  data['Domain'].values
+    Xp = data.as_matrix(columns=["Sent1", "Sent2"])
+    y = data['Score'].values
+
+    Xpt = pair_transformer.fit_transform(Xp)
+    Xdt = domain_transformer.fit_transform(Xd)
+    Xdt = Xdt.reshape(-1, 1)
+
+    Xt = np.hstack((Xpt,Xdt))
+    return Xt, y
+
+def _test_transform(data_file, pair_transformer, domain, verbose):
+    class_numeric_value = {'DEF': 1,
+                'PARA': 2,
+                'IMG': 3,
+                'NEWS': 4,
+                'QA': 5}
+    data = load_dataset (data_file, verbose)
+    Xp = data.as_matrix(columns=["Sent1", "Sent2"])
+    y = data['Score'].values
+    class_num_value = class_numeric_value[domain]
+    Xpt = pair_transformer.fit_transform(Xp)
+    Xdt = np.tile([class_num_value], len(data))
+    Xdt = Xdt.reshape(-1, 1)
+
+    Xt = np.hstack((Xpt,Xdt))
+    return Xt, y
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--vectorization_method", default='spacy', type=str)    #glove, spacy, polygolt
-    parser.add_argument("--PoS_method", default='spacy', type=str)   #spacy, polyglot
-    parser.add_argument("--NER_method", default='spacy', type=str)  #spacy, polyglot
-    parser.add_argument("--regressor", default='RF', type=str)   #lasso, RF
-    parser.add_argument("--data_set", default='data/sts_2017_all_except_postediting.csv', type=str)
-    parser.add_argument("--training_set", default='data/sts_2016_train.csv', type=str)
+    parser.add_argument("--vectorization_method", default='spacy', type=str) #glove, spacy, polygolt
+    parser.add_argument("--PoS_method", default='polyglot', type=str) #spacy, polyglot
+    parser.add_argument("--NER_method", default='spacy', type=str) #spacy, polyglot
+    parser.add_argument("--regressor", default='RF', type=str) #lasso, RF
+    parser.add_argument("--data_set", default='data/cleaned_2017_all.csv', type=str)
+    parser.add_argument("--training_set", default='data/cleaned_2017_training.csv', type=str)
     parser.add_argument("--test_set_headlines", default='data/sts_2016_test_headlines.csv', type=str)
-    parser.add_argument("--test_set_images", default='data/sts_2015_images.csv', type=str)
-    parser.add_argument("--test_set_answers_students", default='data/sts_2015_answers-students.csv', type=str)
+    parser.add_argument("--test_set_images", default='data/sts_2015_test_images.csv', type=str)
+    parser.add_argument("--test_set_answers_students", default='data/sts_2015_test_answers-students.csv', type=str)
     parser.add_argument("--test_set_answer_answer", default='data/sts_2016_test_answer-answer.csv', type=str)
     parser.add_argument("--test_set_plagiarism", default='data/sts_2016_test_plagiarism.csv', type=str)
     parser.add_argument("--test_set_question_question", default='data/sts_2016_test_question-question.csv', type=str)
+    parser.add_argument("--predict_task", default='data/predict_task.csv', type=str)
     parser.add_argument("--verbose", default=1, type=int)
     parser.add_argument("--evaluate", default=1, type=int)
     parser.add_argument("--glovefile", default='data/glove.6B.300d.txt', type=str)
@@ -611,28 +653,35 @@ if __name__ == "__main__":
         _load_glove(args.glovefile, verbose=args.verbose)
 
     if args.evaluate:
-
-        X, y = load_dataset (args.training_set, args.verbose)
-      
-        distance_estimator = _build_distance_estimator(
-            X, y, w2v, PoS, NER, regressor, verbose=1)
-
+        distance_estimator, pair_transformer, domain_transformer = _estimate(args.training_set,
+                                                                            w2v, PoS, NER, regressor, args.verbose)
         pickle.dump(distance_estimator,
                     open("traning_distance_model"+regressor+".pickle", "wb"),
                     protocol=pickle.HIGHEST_PROTOCOL)
-        
+        pickle.dump(pair_transformer,
+            open("traning_pair_transformer.pickle", "wb"),
+            protocol=pickle.HIGHEST_PROTOCOL)
+        pickle.dump(domain_transformer,
+            open("traning_domain_transformer.pickle", "wb"),
+            protocol=pickle.HIGHEST_PROTOCOL)
+
         score = dict()
-        X_test, y_test = load_dataset(args.test_set_headlines, verbose=1)
+        X_test, y_test = _test_transform(args.test_set_headlines, pair_transformer, 'NEWS', args.verbose)
         score['headlines_score'] = sts_score(distance_estimator,X_test, y_test)
-        X_test, y_test = load_dataset(args.test_set_images, verbose=1)
+
+        X_test, y_test = _test_transform(args.test_set_images, pair_transformer, 'IMG', args.verbose)
         score['images_score'] = sts_score(distance_estimator,X_test, y_test)
-        X_test, y_test = load_dataset(args.test_set_answers_students, verbose=1)
+
+        X_test, y_test = _test_transform(args.test_set_answers_students, pair_transformer, 'QA', args.verbose)
         score['answers_students_score'] = sts_score(distance_estimator,X_test, y_test)
-        X_test, y_test = load_dataset(args.test_set_answer_answer, verbose=1)
+
+        X_test, y_test = _test_transform(args.test_set_answer_answer, pair_transformer, 'QA', args.verbose)
         score['answer_answer_score'] = sts_score(distance_estimator,X_test, y_test)
-        X_test, y_test = load_dataset(args.test_set_plagiarism, verbose=1)
+
+        X_test, y_test = _test_transform(args.test_set_plagiarism, pair_transformer, 'PARA', args.verbose)
         score['plagiarism_score'] = sts_score(distance_estimator,X_test, y_test)
-        X_test, y_test = load_dataset(args.test_set_question_question, verbose=1)
+
+        X_test, y_test = _test_transform(args.test_set_question_question, pair_transformer, 'QA', args.verbose)
         score['question-question_score'] = sts_score(distance_estimator,X_test, y_test)
 
         if args.verbose == 1:
@@ -643,11 +692,21 @@ if __name__ == "__main__":
                 protocol=pickle.HIGHEST_PROTOCOL)
 
     else:
-        X, y = load_dataset (args.data_set, args.verbose)
-      
-        distance_estimator = _build_distance_estimator(
-            X, y, w2v, PoS, NER, regressor, verbose=1)
-
+        distance_estimator, pair_transformer, domain_transformer = _estimate(args.data_set,
+                                                                    w2v, PoS, NER, regressor, args.verbose)
         pickle.dump(distance_estimator,
-                    open("distance_model.pickle", "wb"),
+                    open("distance_model"+regressor+".pickle", "wb"),
                     protocol=pickle.HIGHEST_PROTOCOL)
+        pickle.dump(pair_transformer,
+            open("pair_transformer.pickle", "wb"),
+            protocol=pickle.HIGHEST_PROTOCOL)
+        pickle.dump(domain_transformer,
+            open("domain_transformer.pickle", "wb"),
+            protocol=pickle.HIGHEST_PROTOCOL)
+
+        X_test, _ = _test_transform(args.predict_task, pair_transformer, 'IMG', args.verbose)
+        y_predict = distance_estimator.predict(X_test)
+        results = y_predict.reshape(-1,1)
+        res = pd.DataFrame()
+        res['Score'] = results
+        res.to_csv('STS.sys.track5.en-en.txt', index=False, header=False)
