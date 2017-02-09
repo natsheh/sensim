@@ -207,10 +207,10 @@ def _build_distance_estimator(X, y, w2v, PoS, NER, regressor, verbose=1):
 
     transformer = FeatureUnion([
         ("nouns_glove", Pipeline(steps=[
-        	('pairtransformer', PairTransformer(element_transformer=
+            ('pairtransformer', PairTransformer(element_transformer=
                 FuncTransformer(dtype=None, func=get_nouns),
         groupby=None)), 
-        	('sop', SmallerOtherParing()),
+            ('sop', SmallerOtherParing()),
             ('pgt', PairVecTransformer()),
             ('rgpc', RefGroupPairCosine()),
             ('gm', GetMatches()),
@@ -595,6 +595,7 @@ if __name__ == "__main__":
     parser.add_argument("--test_set_answers_students", default='data/sts_2015_test_answers-students.csv', type=str)
     parser.add_argument("--test_set_answer_answer", default='data/sts_2016_test_answer-answer.csv', type=str)
     parser.add_argument("--test_set_plagiarism", default='data/sts_2016_test_plagiarism.csv', type=str)
+    parser.add_argument("--test_set_postediting", default='data/sts_2016_test_postediting.csv', type=str)
     parser.add_argument("--test_set_question_question", default='data/sts_2016_test_question-question.csv', type=str)
     parser.add_argument("--predict_task", default='data/predict_task.csv', type=str)
     parser.add_argument("--verbose", default=1, type=int)
@@ -638,6 +639,8 @@ if __name__ == "__main__":
         score['answer_answer_score'] = sts_score(distance_estimator,X_test, y_test, args.decimals)
         X_test, y_test = load_dataset(args.test_set_plagiarism, verbose=1)
         score['plagiarism_score'] = sts_score(distance_estimator,X_test, y_test, args.decimals)
+        X_test, y_test = load_dataset(args.test_set_postediting, verbose=1)
+        score['postediting_score'] = sts_score(distance_estimator,X_test, y_test, args.decimals)
         X_test, y_test = load_dataset(args.test_set_question_question, verbose=1)
         score['question-question_score'] = sts_score(distance_estimator,X_test, y_test, args.decimals)
 
