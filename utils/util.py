@@ -8,6 +8,7 @@
 
 """
 from scipy.stats import pearsonr
+import numpy as np
 
 
 def get_text(s):
@@ -22,8 +23,12 @@ def to_numeric(s):
         res.append(' ')
     return res
 
-def sts_score(est, X, y):
+def sts_score(est, X, y, decimals=None):
     y_est = est.predict(X)
+    y_est[np.where(y_est > 5)] = 5
+    y_est[np.where(y_est < 0)] = 0
+    if decimals is not None:
+        y_est = np.round(y_est, decimals=decimals)
     return pearsonr(y_est, y)[0]
 
 def group_by_sentence(r):

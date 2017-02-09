@@ -100,7 +100,6 @@ from polyglot.mapping import Embedding
 
 def _load_glove(glove_file, verbose=1):
     global glove
-    #glove = pd.read_csv(glove_file, sep=' ', skiprows=[8], index_col=0, header=None, encoding='utf-8')
     glove = Embedding.from_glove(glove_file)
     if verbose == 2:
         print 'GloVe shape:', glove.shape
@@ -571,7 +570,7 @@ def _build_distance_estimator(X, y, w2v, PoS, NER, regressor, verbose=1):
 
     # Train a classifier on these vectors
     if regressor == 'lasso':
-        classifier = LassoLarsCV(cv=10, max_iter=1024, n_jobs=-1)
+        classifier = LassoLarsCV(cv=5, max_iter=512, n_jobs=-1)
     elif regressor == 'RF':
         classifier = RandomForestRegressor(n_jobs=-1, max_depth=8, n_estimators=1024)
     else:
@@ -585,20 +584,25 @@ def _build_distance_estimator(X, y, w2v, PoS, NER, regressor, verbose=1):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--vectorization_method", default='spacy', type=str)    #glove, spacy, polygolt
-    parser.add_argument("--PoS_method", default='spacy', type=str)   #spacy, polyglot
-    parser.add_argument("--NER_method", default='spacy', type=str)  #spacy, polyglot
-    parser.add_argument("--regressor", default='RF', type=str)   #lasso, RF
-    parser.add_argument("--data_set", default='data/sts_2017_all_except_postediting.csv', type=str)
-    parser.add_argument("--training_set", default='data/sts_2016_train.csv', type=str)
+    parser.add_argument("--vectorization_method", default='spacy', type=str) #glove, spacy, polygolt
+    parser.add_argument("--PoS_method", default='polyglot', type=str) #spacy, polyglot
+    parser.add_argument("--NER_method", default='spacy', type=str) #spacy, polyglot
+    parser.add_argument("--regressor", default='RF', type=str) #lasso, RF
+    parser.add_argument("--data_set", default='data/cleaned_2017_all.csv', type=str)
+    parser.add_argument("--training_set", default='data/cleaned_2017_training.csv', type=str)
     parser.add_argument("--test_set_headlines", default='data/sts_2016_test_headlines.csv', type=str)
-    parser.add_argument("--test_set_images", default='data/sts_2015_images.csv', type=str)
-    parser.add_argument("--test_set_answers_students", default='data/sts_2015_answers-students.csv', type=str)
+    parser.add_argument("--test_set_images", default='data/sts_2015_test_images.csv', type=str)
+    parser.add_argument("--test_set_answers_students", default='data/sts_2015_test_answers-students.csv', type=str)
     parser.add_argument("--test_set_answer_answer", default='data/sts_2016_test_answer-answer.csv', type=str)
     parser.add_argument("--test_set_plagiarism", default='data/sts_2016_test_plagiarism.csv', type=str)
     parser.add_argument("--test_set_question_question", default='data/sts_2016_test_question-question.csv', type=str)
+    parser.add_argument("--predict_task", default='data/predict_task.csv', type=str)
     parser.add_argument("--verbose", default=1, type=int)
-    parser.add_argument("--evaluate", default=1, type=int)
+    parser.add_argument("--evaluate", default=0, type=int)
+    parser.add_argument("--training_estimator", default=None, type=str)
+    parser.add_argument("--estimator", default=None, type=str)
+    parser.add_argument("--decimals", default=None, type=int)
+    parser.add_argument("--bounded", default=1, type=str)
     parser.add_argument("--glovefile", default='data/glove.6B.300d.txt', type=str)
     args = parser.parse_args()
 
@@ -611,29 +615,31 @@ if __name__ == "__main__":
         _load_glove(args.glovefile, verbose=args.verbose)
 
     if args.evaluate:
+        if args.training_estimator is None:
+            X, y = load_dataset (args.training_set, args.verbose)
+          
+            distance_estimator = _build_distance_estimator(
+                X, y, w2v, PoS, NER, regressor, verbose=1)
 
-        X, y = load_dataset (args.training_set, args.verbose)
-      
-        distance_estimator = _build_distance_estimator(
-            X, y, w2v, PoS, NER, regressor, verbose=1)
-
-        pickle.dump(distance_estimator,
-                    open("traning_distance_model"+regressor+".pickle", "wb"),
-                    protocol=pickle.HIGHEST_PROTOCOL)
+            pickle.dump(distance_estimator,
+                        open("traning_distance_model"+regressor+".pickle", "wb"),
+                        protocol=pickle.HIGHEST_PROTOCOL)
+        else:
+            distance_estimator = pickle.load(open(args.training_estimator,'rb'))
         
         score = dict()
         X_test, y_test = load_dataset(args.test_set_headlines, verbose=1)
-        score['headlines_score'] = sts_score(distance_estimator,X_test, y_test)
+        score['headlines_score'] = sts_score(distance_estimator,X_test, y_test, args.decimals)
         X_test, y_test = load_dataset(args.test_set_images, verbose=1)
-        score['images_score'] = sts_score(distance_estimator,X_test, y_test)
+        score['images_score'] = sts_score(distance_estimator,X_test, y_test, args.decimals)
         X_test, y_test = load_dataset(args.test_set_answers_students, verbose=1)
-        score['answers_students_score'] = sts_score(distance_estimator,X_test, y_test)
+        score['answers_students_score'] = sts_score(distance_estimator,X_test, y_test, args.decimals)
         X_test, y_test = load_dataset(args.test_set_answer_answer, verbose=1)
-        score['answer_answer_score'] = sts_score(distance_estimator,X_test, y_test)
+        score['answer_answer_score'] = sts_score(distance_estimator,X_test, y_test, args.decimals)
         X_test, y_test = load_dataset(args.test_set_plagiarism, verbose=1)
-        score['plagiarism_score'] = sts_score(distance_estimator,X_test, y_test)
+        score['plagiarism_score'] = sts_score(distance_estimator,X_test, y_test, args.decimals)
         X_test, y_test = load_dataset(args.test_set_question_question, verbose=1)
-        score['question-question_score'] = sts_score(distance_estimator,X_test, y_test)
+        score['question-question_score'] = sts_score(distance_estimator,X_test, y_test, args.decimals)
 
         if args.verbose == 1:
             print score
@@ -643,11 +649,31 @@ if __name__ == "__main__":
                 protocol=pickle.HIGHEST_PROTOCOL)
 
     else:
-        X, y = load_dataset (args.data_set, args.verbose)
-      
-        distance_estimator = _build_distance_estimator(
-            X, y, w2v, PoS, NER, regressor, verbose=1)
+        if args.estimator is None:
+            X, y = load_dataset (args.data_set, args.verbose)
+          
+            distance_estimator = _build_distance_estimator(
+                X, y, w2v, PoS, NER, regressor, verbose=1)
 
-        pickle.dump(distance_estimator,
-                    open("distance_model.pickle", "wb"),
-                    protocol=pickle.HIGHEST_PROTOCOL)
+            pickle.dump(distance_estimator,
+                        open("distance_model.pickle", "wb"),
+                        protocol=pickle.HIGHEST_PROTOCOL)
+        else:
+            distance_estimator = pickle.load(open(args.estimator, 'rb'))
+        X_test, _ = load_dataset(args.predict_task, verbose=1)
+        y_predict = distance_estimator.predict(X_test)
+        prediction = y_predict.reshape(-1,1)
+        if args.decimals is not None:
+            prediction = np.round(prediction, decimals=args.decimals)
+        if args.bounded:
+            prediction[np.where(prediction > 5)] = 5
+            prediction[np.where(prediction < 0)] = 0
+        res = pd.DataFrame()
+
+        results = []
+        for r in prediction:
+            p = r[0]
+            results.append(p)
+
+        res['Score'] = results
+        res.to_csv('STS.sys.track5.en-en.txt', index=False, header=False)

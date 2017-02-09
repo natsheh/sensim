@@ -8,7 +8,7 @@ import pandas as pd
 import numpy as np
 
 def load_dataset(data_file, verbose=0):
-    data = pd.read_csv(data_file, dtype={'Score': np.float32})
+    data = pd.read_csv(data_file, sep='~', dtype={'Score': np.float32})
     if verbose == 2:
         print data.shape
         print data.head(n=10)
