@@ -22,7 +22,7 @@ Please cite using the following BibTex entry
 
 ```
 @article{alnatsheh2017semeval,
-  title={UdL at SemEval-2017 Task 1: Semantic Text Similarity Estimation of English Sentence Pairs Using Regression Model over Pairwise Features},
+  title={UdL at SemEval-2017 Task 1: Semantic Textual Similarity Estimation of English Sentence Pairs Using Regression Model over Pairwise Features},
   author={AL-NATSHEH, Hussein T. and Martinet, Lucie and Muhlenbach, Fabrice  and Zighed, Djamel A.},
   journal={Proceedings of SemEval},
   year={2017}
