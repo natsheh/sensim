@@ -15,7 +15,7 @@ Dependancies
 
 Usage
 -----
-	After cloning the repositpry, use distance.py with its documented arguments
+	After cloning the repositpry, use sts.py with its documented arguments
 
 Please cite using the following BibTex entry
 --------------------------------------------
