@@ -1,6 +1,7 @@
 # coding: utf-8
 
-# Author: Hussein AL-NATSHEH <hussein.al-natsheh@ish-lyon.cnrs.fr>
+# This is the code used for UdL team at SemEval 2017 STS task EN-EN track
+# Author: Hussein AL-NATSHEH <hussein.al-natsheh@cnrs.fr>
 # License: BSD 3 clause
 # 2016, 2017
 
