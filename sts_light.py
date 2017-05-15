@@ -256,19 +256,6 @@ def _build_distance_estimator(X, y, w2v, PoS, NER, regressor, verbose=1):
             ('sd', SolveDuplicate()),
             ('ac', AvgPOSCombiner()),
             ])),
-
-        ("get_interjection", Pipeline(steps=[
-            ('pairtransformer', PairTransformer(element_transformer=
-                FuncTransformer(dtype=None, func=get_interjection),
-        groupby=None)), 
-            ('sop', SmallerOtherParing()),
-            ('pgt', PairVecTransformer()),
-            ('rgpc', RefGroupPairCosine()),
-            ('gm', GetMatches()),
-            ('sd', SolveDuplicate()),
-            ('ac', AvgPOSCombiner()),
-            ])),
-
         ("get_symbol", Pipeline(steps=[
             ('pairtransformer', PairTransformer(element_transformer=
                 FuncTransformer(dtype=None, func=get_symbol),
@@ -388,42 +375,9 @@ def _build_distance_estimator(X, y, w2v, PoS, NER, regressor, verbose=1):
             ('sd', SolveDuplicate()),
             ('ac', AvgPOSCombiner()),
             ])),
-        ("get_others", Pipeline(steps=[
-            ('pairtransformer', PairTransformer(element_transformer=
-                FuncTransformer(dtype=None, func=get_others),
-        groupby=None)), 
-            ('sop', SmallerOtherParing()),
-            ('pgt', PairVecTransformer()),
-            ('rgpc', RefGroupPairCosine()),
-            ('gm', GetMatches()),
-            ('sd', SolveDuplicate()),
-            ('ac', AvgPOSCombiner()),
-            ])),
         ("get_subordinating_conjunctions", Pipeline(steps=[
             ('pairtransformer', PairTransformer(element_transformer=
                 FuncTransformer(dtype=None, func=get_subordinating_conjunctions),
-        groupby=None)), 
-            ('sop', SmallerOtherParing()),
-            ('pgt', PairVecTransformer()),
-            ('rgpc', RefGroupPairCosine()),
-            ('gm', GetMatches()),
-            ('sd', SolveDuplicate()),
-            ('ac', AvgPOSCombiner()),
-            ])),
-        ("spacy_eol", Pipeline(steps=[
-            ('pairtransformer', PairTransformer(element_transformer=
-                FuncTransformer(dtype=None, func=spacy_eol),
-        groupby=None)), 
-            ('sop', SmallerOtherParing()),
-            ('pgt', PairVecTransformer()),
-            ('rgpc', RefGroupPairCosine()),
-            ('gm', GetMatches()),
-            ('sd', SolveDuplicate()),
-            ('ac', AvgPOSCombiner()),
-            ])),
-        ("spacy_space", Pipeline(steps=[
-            ('pairtransformer', PairTransformer(element_transformer=
-                FuncTransformer(dtype=None, func=spacy_space),
         groupby=None)), 
             ('sop', SmallerOtherParing()),
             ('pgt', PairVecTransformer()),
@@ -476,75 +430,9 @@ def _build_distance_estimator(X, y, w2v, PoS, NER, regressor, verbose=1):
             ('sd', SolveDuplicate()),
             ('ac', AvgPOSCombiner()),
             ])),
-        ("spacy_facilities", Pipeline(steps=[
-            ('pairtransformer', PairTransformer(element_transformer=
-                FuncTransformer(dtype=None, func=spacy_facilities),
-        groupby=None)), 
-            ('sop', SmallerOtherParing()),
-            ('pgt', PairVecTransformer()),
-            ('rgpc', RefGroupPairCosine()),
-            ('gm', GetMatches()),
-            ('sd', SolveDuplicate()),
-            ('ac', AvgPOSCombiner()),
-            ])),
         ("spacy_geo_locations", Pipeline(steps=[
             ('pairtransformer', PairTransformer(element_transformer=
                 FuncTransformer(dtype=None, func=spacy_geo_locations),
-        groupby=None)), 
-            ('sop', SmallerOtherParing()),
-            ('pgt', PairVecTransformer()),
-            ('rgpc', RefGroupPairCosine()),
-            ('gm', GetMatches()),
-            ('sd', SolveDuplicate()),
-            ('ac', AvgPOSCombiner()),
-            ])),
-        ("spacy_products", Pipeline(steps=[
-            ('pairtransformer', PairTransformer(element_transformer=
-                FuncTransformer(dtype=None, func=spacy_products),
-        groupby=None)), 
-            ('sop', SmallerOtherParing()),
-            ('pgt', PairVecTransformer()),
-            ('rgpc', RefGroupPairCosine()),
-            ('gm', GetMatches()),
-            ('sd', SolveDuplicate()),
-            ('ac', AvgPOSCombiner()),
-            ])),
-        ("spacy_events", Pipeline(steps=[
-            ('pairtransformer', PairTransformer(element_transformer=
-                FuncTransformer(dtype=None, func=spacy_events),
-        groupby=None)), 
-            ('sop', SmallerOtherParing()),
-            ('pgt', PairVecTransformer()),
-            ('rgpc', RefGroupPairCosine()),
-            ('gm', GetMatches()),
-            ('sd', SolveDuplicate()),
-            ('ac', AvgPOSCombiner()),
-            ])),
-        ("spacy_work_of_arts", Pipeline(steps=[
-            ('pairtransformer', PairTransformer(element_transformer=
-                FuncTransformer(dtype=None, func=spacy_work_of_arts),
-        groupby=None)), 
-            ('sop', SmallerOtherParing()),
-            ('pgt', PairVecTransformer()),
-            ('rgpc', RefGroupPairCosine()),
-            ('gm', GetMatches()),
-            ('sd', SolveDuplicate()),
-            ('ac', AvgPOSCombiner()),
-            ])),
-        ("spacy_laws", Pipeline(steps=[
-            ('pairtransformer', PairTransformer(element_transformer=
-                FuncTransformer(dtype=None, func=spacy_laws),
-        groupby=None)), 
-            ('sop', SmallerOtherParing()),
-            ('pgt', PairVecTransformer()),
-            ('rgpc', RefGroupPairCosine()),
-            ('gm', GetMatches()),
-            ('sd', SolveDuplicate()),
-            ('ac', AvgPOSCombiner()),
-            ])),
-        ("spacy_languages", Pipeline(steps=[
-            ('pairtransformer', PairTransformer(element_transformer=
-                FuncTransformer(dtype=None, func=spacy_languages),
         groupby=None)), 
             ('sop', SmallerOtherParing()),
             ('pgt', PairVecTransformer()),
@@ -577,7 +465,7 @@ def _build_distance_estimator(X, y, w2v, PoS, NER, regressor, verbose=1):
     if regressor == 'lasso':
         classifier = LassoLarsCV(cv=5, max_iter=512, n_jobs=-1)
     elif regressor == 'RF':
-        classifier = RandomForestRegressor(n_jobs=-1, max_depth=8, n_estimators=1024)
+        classifier = RandomForestRegressor(n_jobs=-1, max_depth=8, n_estimators=500)
     else:
         print('Error passing the regressor type')
 

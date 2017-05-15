@@ -2,20 +2,24 @@
 
 Sentence Similarity Estimator (SenSim)
 
+Usage
+-----
+	After cloning the repositpry, use sts.py or sts_light.py with its documented arguments
+
 Dependancies
 ------------
 	This repository currently supports Python 2.7
-	sklearn 0.18
-	polyglot 16.07.04
-	spacy 0.100.5
-	beard 0.2
-	digify 0.2
-	enchant 1.6.8
-	GloVe pre-trained word vectors file of vector size 300
+	For the used default values in sts.py/sts_light.py, you need the following:
+	sklearn==0.18
+	polyglot==16.07.04 
+		Dependencies: (python-numpy libicu-dev)
+		(to use in ubuntu/debian) sudo apt-get install python-numpy libicu-dev
+	beard==0.2
+	digify==0.2
+	enchant==1.6.8
+	spacy==0.100.5
+		Needed models: python -m spacy.en.download glove
 
-Usage
------
-	After cloning the repositpry, use sts.py with its documented arguments
 
 Please cite using the following BibTex entry
 --------------------------------------------
