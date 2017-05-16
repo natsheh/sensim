@@ -18,6 +18,8 @@ from .util import de_contraction
 from .wordvec import word2glove
 from .transformers import FuncTransformer
 from .transformers import Shaper
+from .load_data import read_tsv
+from .load_data import df_2_dset
 from .load_data import load_dataset
 from .combiners import PairCosine
 from .combiners import SmallerOtherParing
@@ -36,6 +38,8 @@ __all__ = ("get_text",
            "word2glove",
            "FuncTransformer",
            "Shaper",
+           "read_tsv",
+           "df_2_dset",
            "load_dataset",
            "PairCosine",
            "SmallerOtherParing",
