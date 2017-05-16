@@ -1,0 +1,84 @@
+
+Notes on datasets and licenses
+------------------------------
+
+If using this data in your research please cite the following paper
+and the url of the STS website: http://ixa2.si.ehu.eus/stswiki:
+
+   Eneko Agirre, Daniel Cer, Mona Diab, Iñigo Lopez-Gazpio, Lucia
+    Specia. Semeval-2017 Task 1: Semantic Textual Similarity
+    Multilingual and Crosslingual Focused Evaluation. Proceedings of
+    SemEval 2017.
+
+The scores are released under a "Commons Attribution - Share Alike 4.0
+International License" http://creativecommons.org/licenses/by-sa/4.0/
+
+The texts are released under the following licenses:
+
+- SMTnews: news conversation sentence pairs from WMT
+
+- SMTeuroparl: WMT2008 develoment dataset (Europarl section)
+  http://www.statmt.org/wmt08/shared-evaluation-task.html
+
+- postediting: EAMT11 dataset - machine translations with human
+  judgements and post-editions (Specia, 2011).
+  Creative Commons Attribution 4.0 International (CC BY 4.0)
+  http://creativecommons.org/licenses/by/4.0/
+
+- OnWN: pairs of sentences where the first comes from Ontonotes
+  glosses and the second from WordNet glosses. We are grateful to the
+  OntoNotes team for sharing OntoNotes to WordNet mappings (Hovy et
+  al. 2006).
+
+- FNWN: The sentences are sense definitions from WordNet and
+  FrameNet. Note that some FrameNet definitions involve more than one
+  sentence. The WordNet-FrameNet mappings are funded by NSF 11-536 CRI
+  planning award for LexLink, Christiane Fellbaum, Collin Baker,
+  Martha Palmer and Orin Hargraves, and by NSF award CRI:CI-ADDO-EN
+  0855271 for Christiane Fellbaum and Collin Baker. We are grateful
+  for their sharing of the data.
+
+- tweet-news: The dataset is a subset of the Linking-Tweets-to-News
+  data set (Guo et al., 2013), which consists of 34,888 tweets and
+  12,704 news articles.  The tweets are the comments on the news
+  articles.  The news sentences are the titles of news articles.
+
+- belief: pairs were collected from the DEFT Committed Belief
+  Annotation dataset
+
+- plagiarism: The dataset is based on (Clough and Stevenson, 2011).
+  Creative Commons Attribution-Noncommercial-Share Alike 2.0
+  UK: England & Wales License
+  http://creativecommons.org/licenses/by-nc-sa/2.0/uk/
+
+- question-question: check the following license
+
+  Creative Commons Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0)
+  http://creativecommons.org/licenses/by-sa/3.0/
+
+  Attribution Requirements:
+
+   "* Visually display or otherwise indicate the source of the content
+      as coming from the Stack Exchange Network. This requirement is 
+      satisfied with a discreet text blurb, or some other unobtrusive but
+      clear visual indication.
+
+    * Ensure that any Internet use of the content includes a hyperlink 
+      directly to the original question on the source site on the Network
+      (e.g., http://stackoverflow.com/questions/12345)
+
+    * Visually display or otherwise clearly indicate the author names for 
+      every question and answer used
+
+    * Ensure that any Internet use of the content includes a hyperlink for 
+      each author name directly back to his or her user profile page on the
+      source site on the Network (e.g., 
+      http://stackoverflow.com/users/12345/username), directly to the Stack
+      Exchange domain, in standard HTML (i.e. not through a Tinyurl or other
+      such indirect hyperlink, form of obfuscation or redirection), without 
+      any “nofollow” command or any other such means of avoiding detection by
+      search engines, and visible even with JavaScript disabled."
+
+    (https://archive.org/details/stackexchange)
+
+

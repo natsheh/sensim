@@ -2,10 +2,6 @@
 
 Sentence Similarity Estimator (SenSim)
 
-Usage
------
-	After cloning the repositpry, use sts.py or sts_light.py with its documented arguments
-
 Dependancies
 ------------
 	This repository currently supports Python 2.7
@@ -19,6 +15,15 @@ Dependancies
 	enchant==1.6.8
 	spacy==0.100.5
 		Needed models: python -m spacy.en.download glove
+
+Usage to reproduce the results in the paper
+-------------------------------------------
+	After cloning the repositpry, use sts.py with its documented arguments
+
+
+Usage to reproduce the results against the STS Benchmark
+--------------------------------------------------------
+	After cloning the repositpry, use sts_benchmark.py with its default param
 
 
 Please cite using the following BibTex entry
