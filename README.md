@@ -25,6 +25,9 @@ Usage to reproduce the results against the STS Benchmark
 --------------------------------------------------------
 	After cloning the repositpry, use sts_benchmark.py with its default param
 
+Access to the paper
+-------------------
+	http://nlp.arizona.edu/SemEval-2017/pdf/SemEval013.pdf
 
 Please cite using the following BibTex entry
 --------------------------------------------
