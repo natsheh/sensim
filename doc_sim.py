@@ -1,47 +1,18 @@
 # coding: utf-8
 
-# Author: Hussein AL-NATSHEH <hussein.al-natsheh@ish-lyon.cnrs.fr>
+# Author: Hussein AL-NATSHEH <hussein.al-natsheh@cnrs.fr>
 # License: BSD 3 clause
-# 2016
+# 2016, 2017
 
 import argparse
 import numpy as np
 import pickle
 
+import numpy as np
+import spacy
 
-from sklearn.base import BaseEstimator
-from sklearn.base import TransformerMixin
-
-from polyglot.base import TextFile
-from polyglot.text import Text
-
-from utils import load_glove
-
-def _define_global(glove_file):
-    global glove6b300d
-    glove6b300d = load_glove(glove_file, verbose=0)
-
-def _word2glove(word):
-    """Get the GloVe vector representation of the word.
-
-    Parameters
-    ----------
-    :param dframe: Pandas DataFrame
-        Pre-trained GloVe loaded dataframe
-    
-    :param word: string
-        word
-
-    Returns
-    -------
-    :returns: Vecotr
-        Glove vector of the word
-    """    
-    word = word.lower()
-    if word not in glove6b300d.index:
-        return np.zeros(300, dtype=float, order='C')
-    else:
-        return np.array(glove6b300d.loc[word])
+global en_parser
+en_parser = spacy.load('en')
 
 def _get_matches(r, th):
     matches = []
@@ -66,48 +37,32 @@ def _solve_duplictes(mk, ids):
             res.append(chk_dup[0])
     return _sort_arr(np.array(res))
 
-class PairGloveTransformer(BaseEstimator, TransformerMixin):
-    def fit(self, X, y=None):
-        return self
+def _read_doc_file(file_path):
+    s = open(file_path).read()
+    s = unicode(s, 'utf-8')
+    return en_parser(s)
 
-    def transform(self, X):
-        n_samples = len(X)
-        Xt = np.zeros(n_samples, dtype=object)
-        s_id = 0
-        for sample in X:
-            lst = []
-            for tup in sample:
-                w1, w2 = tup
-                w1_id, w1_text = w1
-                w2_id, w2_text = w2
-                w1_vec = _word2glove(w1_text)
-                w2_vec = _word2glove(w2_text)
-                lst.append(((w1_id, w1_vec), (w2_id, w2_vec)))
-            Xt[s_id] = lst
-            s_id += 1
-        return Xt
+def _sent_tokenizer(spacy_doc):
+    sentences = []
+    for sent in spacy_doc.sents:
+        sentences.append(sent.orth_)
+    return sentences
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--estimator", default='distance_model.pickle', type=str)
-    parser.add_argument("--doc1", default='data/docs/Retrograde.txt', type=str)
+    parser.add_argument("--doc1", default='data/docs/Dream.txt', type=str)
     parser.add_argument("--doc2", default='data/docs/Double_Entry.txt', type=str)
     parser.add_argument("--threshold", default=2, type=float)
     parser.add_argument("--solve_dup", default=1, type=int)
     parser.add_argument("--glovefile", default='data/glove.6B.300d.txt', type=str)
     args = parser.parse_args()
 
-    doc1 = TextFile(args.doc1).read()
-    doc2 = TextFile(args.doc2).read()
+    doc1 = _read_doc_file(args.doc1)
+    doc2 = _read_doc_file(args.doc2)
 
-    text1 = Text(doc1)
-    text2 = Text(doc2)
-
-    text1.language = 'en'
-    text2.language = 'en'
-    
-    sentences1 = text1.sentences
-    sentences2 = text2.sentences
+    sentences1 = _sent_tokenizer(doc1)
+    sentences2 = _sent_tokenizer(doc2)
 
     if len(sentences1) < len(sentences2):
         smaller = sentences1
@@ -125,14 +80,14 @@ if __name__ == "__main__":
     s_id = 0
     for s1 in smaller:
         s_id += 1
-        smaller_dict[s_id] = s1.string
+        smaller_dict[s_id] = s1
 
 
     o_id = 0
     other_dict = {}
     for s2 in other:
             o_id += 1
-            other_dict[o_id] = s2.string
+            other_dict[o_id] = s2
     k = 0
     for i in smaller_dict.keys():
         for j in other_dict.keys():
@@ -142,12 +97,11 @@ if __name__ == "__main__":
     i= 0
     for s1 in smaller:
         for s2 in other:
-            X[i] = [s1.string, s2.string]
+            X[i] = [str(s1), str(s2)]
             i += 1
-
-    _define_global(args.glovefile)
+    X = np.array(X, dtype=np.object)
     
-    estimator = pickle.load(open(args.estimator,"r"))
+    estimator = pickle.load(open(args.estimator,"rb"))
     y = estimator.predict(X)
 
     r = np.column_stack((hash_tbl,y))
