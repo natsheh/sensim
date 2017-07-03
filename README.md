@@ -56,7 +56,7 @@ Please cite using the following BibTex entry
 	character-based range of n-grams instead of words. This sentence vector
 	BoW-based feature gave a relatively high importance value percentage in the
 	feature importances analysis of the ensemble learning.},
-  url       = {http://nlp.arizona.edu/SemEval-2017/pdf/SemEval013.pdf}
+  url       = {http://www.aclweb.org/anthology/S17-2013}
 }
 
 ```
