@@ -5,11 +5,10 @@
 # 2016, 2017
 
 import argparse
-import numpy as np
 import pickle
-
-import numpy as np
 import spacy
+import numpy as np
+
 
 global en_parser
 en_parser = spacy.load('en')
@@ -97,6 +96,8 @@ if __name__ == "__main__":
     i= 0
     for s1 in smaller:
         for s2 in other:
+            s1 = s1.encode('ascii', 'ignore')
+            s2 = s2.encode('ascii', 'ignore')
             X[i] = [str(s1), str(s2)]
             i += 1
     X = np.array(X, dtype=np.object)
@@ -106,7 +107,7 @@ if __name__ == "__main__":
 
     r = np.column_stack((hash_tbl,y))
     matches_keys = _get_matches(r, args.threshold)
-    if args.solve_dup == 1:
+    if args.solve_dup == 1 and len(matches_keys) > 0:
         matches_keys_resolved = _solve_duplictes(matches_keys, other_dict.keys())
         matches_sentences = []
         for a, b, s in matches_keys_resolved:
