@@ -27,7 +27,7 @@ Usage to reproduce the results against the STS Benchmark
 
 Access to the paper
 -------------------
-	http://nlp.arizona.edu/SemEval-2017/pdf/SemEval013.pdf
+	http://www.aclweb.org/anthology/S17-2013
 
 Please cite using the following BibTex entry
 --------------------------------------------
