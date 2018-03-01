@@ -449,12 +449,12 @@ def _build_distance_estimator(X, y, w2v, PoS, NER, regressor, verbose=1):
             ('sd', SolveDuplicate()),
             ('ac', AvgPOSCombiner()),
             ])),
-        ("sent_tfidf", Pipeline([
+        ("sent_tfidf_cosine", Pipeline([
             ("pairs", PairTransformer(element_transformer=Pipeline([
-                ("1st_verb", FuncTransformer(func=get_text)),
+                ("get_text", FuncTransformer(func=get_text)),
                 ("shaper", Shaper(newshape=(-1,))),
                 ("tf-idf", TfidfVectorizer(analyzer="char_wb",
-                                           ngram_range=(2, 3),
+                                           ngram_range=(2, 4),
                                            dtype=np.float32,
                                            decode_error="replace",
                                            stop_words="english"))
@@ -550,7 +550,8 @@ if __name__ == "__main__":
 
         if args.verbose == 1:
             print score
-
+            # recent run on default parameters values: 
+            #{'test_score': 0.73496312643370554, 'dev_score': 0.79295106912391955}
         pickle.dump(score,
                 open("score.pickle", "wb"),
                 protocol=pickle.HIGHEST_PROTOCOL)

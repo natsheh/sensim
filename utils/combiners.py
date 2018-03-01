@@ -5,10 +5,18 @@
 # 2016
 
 from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.metrics.pairwise import pairwise_distances
 import numpy as np
+import scipy.sparse as sp
 
 from sklearn.base import BaseEstimator
 from sklearn.base import TransformerMixin
+
+def _exp_manhatten(x1, x2):
+    return np.exp(-np.linalg.norm(x1 - x2, ord = 1))
+
+def _manhattan_distance(x,y):
+    return sum(abs(a-b) for a,b in zip(x,y))
 
 def _get_matches(r):
     matches = []
@@ -80,6 +88,144 @@ class PairCosine(BaseEstimator, TransformerMixin):
             i+=1
 
         return Xt.reshape(n_pairs, 1)
+
+class PairMLSTM(BaseEstimator, TransformerMixin):
+    """Exp. Manhattan similarity on paired data."""
+
+    def fit(self, X, y=None):
+        """(Do nothing).
+
+        Parameters
+        ----------
+        :param X: array-like, shape (2*n_pair, 1)
+            Input data.
+
+        Returns
+        -------
+        :returns: self
+        """
+        return self
+
+    def transform(self, X):
+        """Compute the exponant Manhattan distance of all pairs in ``X``.
+
+        To be added.
+
+        Parameters
+        ----------
+        :param X: array-like, shape (2*n_pair, 1)
+            Input paired data.
+
+        Returns
+        -------
+        :returns Xt: array-like, shape (n_pair, 1)
+            The transformed data.
+        """
+        n_samples = X.shape[0]
+
+        #X1 = X[:,0]
+        #X2 = X[:,1]
+        #Xt = np.exp(-1 * pairwise_distances(X1, X2, metric='manhattan', n_jobs=1))
+        Xt = np.zeros(n_samples, dtype=float)
+        i = 0
+        for x1, x2 in X:
+            Xt[i] = 5 * np.exp(-np.linalg.norm(x1 - x2, ord = 1))
+            i+=1
+
+        return Xt.reshape(n_samples, 1)
+
+class PairExpManhattan(BaseEstimator, TransformerMixin):
+    """Exp. Manhattan similarity on paired data."""
+
+    def fit(self, X, y=None):
+        """(Do nothing).
+
+        Parameters
+        ----------
+        :param X: array-like, shape (n_pair, features_of_example_pair)
+            Input data.
+
+        Returns
+        -------
+        :returns: self
+        """
+        return self
+
+    def transform(self, X):
+        """Compute the exponant Manhattan distance of all pairs in ``X``.
+
+        To be added.
+
+        Parameters
+        ----------
+        :param X: array-like, shape (n_pair, features_of_example_pair)
+            Input paired data.
+
+        Returns
+        -------
+        :returns Xt: array-like, shape (n_pair, 1)
+            The transformed data.
+        """
+        n_samples, n_features_all = X.shape
+        n_features = n_features_all // 2
+
+        if sp.issparse(X):
+            X = X.todense()
+
+        X1 = X[:, :n_features]
+        X2 = X[:, n_features:]
+        #Xt = np.exp(-1 * pairwise_distances(X1, X2, metric='manhattan', n_jobs=1))
+        Xt = np.zeros(n_samples, dtype=float)
+        for i in range(n_samples):
+            Xt[i] = np.exp(-np.linalg.norm(X1[i] - X2[i], ord = 1))
+
+        return 5 * Xt.reshape(n_samples, 1)
+
+class PairManhattan(BaseEstimator, TransformerMixin):
+    """Manhattan distance on paired data."""
+
+    def fit(self, X, y=None):
+        """(Do nothing).
+
+        Parameters
+        ----------
+        :param X: array-like, shape (n_pair, features_of_example_pair)
+            Input data.
+
+        Returns
+        -------
+        :returns: self
+        """
+        return self
+
+    def transform(self, X):
+        """Compute the Manhattan distance of all pairs in ``X``.
+
+        To be added.
+
+        Parameters
+        ----------
+        :param X: array-like, shape (n_pair, features_of_example_pair)
+            Input paired data.
+
+        Returns
+        -------
+        :returns Xt: array-like, shape (n_pair, 1)
+            The transformed data.
+        """
+        n_samples, n_features_all = X.shape
+        n_features = n_features_all // 2
+
+        if sp.issparse(X):
+            X = X.todense()
+
+        X1 = X[:, :n_features]
+        X2 = X[:, n_features:]
+        Xt = np.zeros(n_samples, dtype=float)
+        for i in range(n_samples):
+            Xt[i] = np.linalg.norm(X1[i] - X2[i], ord = 1)
+
+        return Xt.reshape(n_samples, 1)
 
 class SmallerOtherParing(BaseEstimator, TransformerMixin):
     """Combine pairs of lists of words into list of paired words."""

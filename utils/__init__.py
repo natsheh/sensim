@@ -28,6 +28,9 @@ from .combiners import GetMatches
 from .combiners import SolveDuplicate
 from .combiners import AvgPOSCombiner
 from .combiners import NumCombiner
+from .combiners import PairMLSTM
+from .combiners import PairExpManhattan
+from .combiners import PairManhattan
 
 
 __all__ = ("get_text",
@@ -47,4 +50,7 @@ __all__ = ("get_text",
            "GetMatches",
            "SolveDuplicate",
            "AvgPOSCombiner",
-           "NumCombiner")
+           "NumCombiner",
+           "PairMLSTM",
+           "PairExpManhattan",
+           "PairManhattan")
